@@ -25,9 +25,9 @@ npm run preview  # preview the production build
 - **Sidebar**: Dashboard, Invoices, and Tax are static labels — kept so Settings reads as part of a real app.
 - Billing actions and real persistence aren't in scope.
 
-## About the fonts
-- UI text uses **Space Grotesk** (Google Fonts) — matches the brand direction.
-- The sidebar wordmark uses **Fraunces** as a stand-in. The actual brand typeface is **Bogart**, which isn't on Google Fonts — if you have a licensed copy, add the font files to a `fonts/` folder, add an `@font-face` rule at the top of `styles.css`, and swap `--brand-word` font-family to it.
+## About the brand visuals
+- Palette tokens live at the top of `styles.css` (paper `#FBF6EE`, landing bold red/teal/chartreuse/blush, calm in-app soft fills) with thick ink borders and hard offset shadows.
+- UI text: **Space Grotesk** (Google Fonts). Display titles: **Bogart** from `public/fonts/bogart/` via `@font-face` → `--font-display`.
 
 ## Structure
 ```

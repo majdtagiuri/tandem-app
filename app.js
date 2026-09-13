@@ -121,7 +121,7 @@ const APP_ICONS = {
   manage: 'sliders-horizontal-bold',
   resend: 'arrow-clockwise-bold',
   check: 'check-bold',
-  transfer: 'user-switch-bold',
+  transfer: 'crown-simple-bold',
   card: 'credit-card-bold',
   swap: 'arrows-left-right-bold',
   ban: 'prohibit-bold',
@@ -668,6 +668,7 @@ function buildRowMenu(m) {
   trigger.setAttribute('aria-haspopup', 'menu');
   trigger.setAttribute('aria-expanded', 'false');
   trigger.setAttribute('aria-label', `Actions for ${m.name}`);
+  trigger.setAttribute('data-tooltip', 'More actions');
   trigger.innerHTML = iconSvg('menu');
 
   const panel = document.createElement('div');
@@ -730,7 +731,7 @@ function buildRow(m) {
   if (!isOwner && manage) {
     const handle = document.createElement('div');
     handle.className = 'drag-handle';
-    handle.innerHTML = `<button type="button" class="drag-handle__btn" aria-label="Drag to reorder ${safeName}" data-drag-id="${m.id}" tabindex="${reorderMode ? '0' : '-1'}"><span class="drag-handle__lines" aria-hidden="true"></span></button>`;
+    handle.innerHTML = `<button type="button" class="drag-handle__btn" aria-label="Drag to reorder ${safeName}" data-tooltip="Drag to reorder" data-drag-id="${m.id}" tabindex="${reorderMode ? '0' : '-1'}"><span class="drag-handle__lines" aria-hidden="true"></span></button>`;
     info.appendChild(handle);
   }
 
@@ -767,11 +768,11 @@ function buildRow(m) {
   const permCell = document.createElement('div');
   permCell.className = 'member-perms';
   if (canEdit && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm" data-action="permissions" data-id="${m.id}" aria-label="Edit permissions for ${safeName}">${iconSvg('edit')}<span>Edit</span></button>`;
+    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="permissions" data-id="${m.id}" aria-label="Edit permissions" data-tooltip="Edit permissions">${iconSvg('edit')}</button>`;
   } else if (isOwner && canTransferOwnership() && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm" data-action="transfer-ownership" aria-label="Transfer ownership">${iconSvg('transfer')}<span>Ownership</span></button>`;
+    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="transfer-ownership" aria-label="Transfer ownership" data-tooltip="Transfer ownership">${iconSvg('transfer')}</button>`;
   } else if (isPending && manage && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm" data-action="resend" data-id="${m.id}" aria-label="Resend invite to ${safeEmail}">${iconSvg('resend')}<span>Resend</span></button>`;
+    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="resend" data-id="${m.id}" aria-label="Resend invite" data-tooltip="Resend invite">${iconSvg('resend')}</button>`;
   } else {
     permCell.innerHTML = `<span class="perm-placeholder" aria-hidden="true">—</span>`;
   }
@@ -779,7 +780,7 @@ function buildRow(m) {
   const actions = document.createElement('div');
   actions.className = 'row-actions';
   if (isPending && manage) {
-    actions.innerHTML = `<button type="button" class="btn--icon btn--icon-danger" data-action="cancel-invite" data-id="${m.id}" aria-label="Cancel invite to ${safeEmail}">${iconSvg('cancel')}</button>`;
+    actions.innerHTML = `<button type="button" class="btn--icon btn--icon-danger" data-action="cancel-invite" data-id="${m.id}" aria-label="Cancel invite to ${safeEmail}" data-tooltip="Cancel this invite">${iconSvg('cancel')}</button>`;
   } else if (isOwner || reorderMode || !manage) {
     actions.innerHTML = `<span class="row-actions-spacer" aria-hidden="true"></span>`;
   } else {
@@ -1448,6 +1449,7 @@ function renderBilling() {
 
   if (canceling) {
     badge.textContent = 'Canceling';
+    badge.removeAttribute('data-tooltip');
     badge.classList.add('plan-badge--canceling');
     billLabel.textContent = 'Access until';
     document.getElementById('plan-next-bill').textContent = state.billing.nextBillingDate;
@@ -1456,6 +1458,7 @@ function renderBilling() {
     keepBtn.hidden = !manageBilling;
   } else {
     badge.textContent = 'Active';
+    badge.removeAttribute('data-tooltip');
     badge.classList.remove('plan-badge--canceling');
     billLabel.textContent = 'Next billing date';
     document.getElementById('plan-next-bill').textContent = state.billing.nextBillingDate;
@@ -1493,7 +1496,7 @@ function getInvoice(id) {
 function renderBillingHistoryPreview() {
   const list = document.getElementById('billing-history-list');
   if (!list) return;
-  const preview = state.billing.invoices.slice(0, 3);
+  const preview = state.billing.invoices.slice(0, 2);
   list.innerHTML = preview.map(inv => `
     <li>
       <button type="button" class="billing-history__row" data-action="view-invoice" data-invoice-id="${escapeHtml(inv.id)}">
@@ -1657,7 +1660,7 @@ function openPaymentModal(options = {}) {
     dueNote.classList.add('payment-due-note--due');
     dueNote.innerHTML = `Payment due for <strong>${escapeHtml(due.number)}</strong> · ${formatMoney(due.amount + due.tax)}. Pay at the end of your cycle.`;
     payBtn.hidden = false;
-    payBtn.innerHTML = `${iconSvg('card')}<span>Pay ${formatMoney(due.amount + due.tax)}</span>`;
+    payBtn.innerHTML = `Pay ${formatMoney(due.amount + due.tax)}`;
     paymentIntent = preferPay || fromInvoice ? 'pay' : 'save';
   } else {
     dueNote.classList.remove('payment-due-note--due');
@@ -2162,6 +2165,7 @@ document.querySelectorAll('.overlay').forEach(ov => {
     closeBtn.type = 'button';
     closeBtn.className = 'modal__close';
     closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.setAttribute('data-tooltip', 'Close');
     closeBtn.innerHTML = iconSvg('cancel');
     modal.prepend(closeBtn);
   }
@@ -2213,8 +2217,10 @@ function setSidebarOpen(open) {
   const toggle = document.getElementById('sidebar-toggle');
   document.body.classList.toggle('sidebar-open', open);
   if (toggle) {
+    const label = open ? 'Close menu' : 'Open menu';
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('data-tooltip', label);
   }
 }
 
@@ -2246,3 +2252,91 @@ document.getElementById('invite-role-label').setAttribute('for', '');
 
 hydrateIcons();
 applyViewAs();
+initTooltips();
+
+/* ---------- Tooltips ---------- */
+
+function initTooltips() {
+  const tip = document.getElementById('app-tooltip');
+  if (!tip) return;
+
+  let active = null;
+  let hideTimer = 0;
+
+  function hide() {
+    active = null;
+    tip.hidden = true;
+    tip.classList.remove('is-visible');
+    tip.removeAttribute('data-place');
+  }
+
+  function position(el) {
+    const rect = el.getBoundingClientRect();
+    const prefer = el.getAttribute('data-tooltip-place') || 'top';
+    tip.hidden = false;
+    tip.classList.add('is-visible');
+    // Measure after visible for accurate size
+    const tipRect = tip.getBoundingClientRect();
+    let place = prefer;
+    let top = rect.top - tipRect.height - 8;
+    if (place === 'bottom' || top < 8) {
+      place = 'bottom';
+      top = rect.bottom + 8;
+    } else {
+      place = 'top';
+    }
+    if (top + tipRect.height > window.innerHeight - 8) {
+      top = Math.max(8, window.innerHeight - tipRect.height - 8);
+    }
+    let left = rect.left + (rect.width - tipRect.width) / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+    tip.dataset.place = place;
+    tip.style.top = `${Math.round(top)}px`;
+    tip.style.left = `${Math.round(left)}px`;
+  }
+
+  function show(el) {
+    const text = el.getAttribute('data-tooltip');
+    if (!text || el.closest('[inert], [aria-hidden="true"]')) return;
+    window.clearTimeout(hideTimer);
+    active = el;
+    tip.textContent = text;
+    position(el);
+  }
+
+  document.addEventListener('pointerover', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el || el === active) return;
+    show(el);
+  });
+
+  document.addEventListener('pointerout', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el || el !== active) return;
+    if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+    hideTimer = window.setTimeout(hide, 60);
+  });
+
+  document.addEventListener('focusin', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) show(el);
+  });
+
+  document.addEventListener('focusout', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el || el !== active) return;
+    if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+    hide();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && active) hide();
+  });
+
+  document.addEventListener('pointerdown', () => {
+    if (active) hide();
+  }, true);
+
+  window.addEventListener('scroll', () => { if (active) hide(); }, true);
+  window.addEventListener('resize', () => { if (active) hide(); });
+}
