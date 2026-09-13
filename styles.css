@@ -469,10 +469,21 @@ h2 {
   width: 20px;
   height: 20px;
 }
-.plan-card__name .icon,
+.plan-card__name .icon-wrap,
+.plan-tier__name .icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+.plan-card__name .icon {
+  width: 22px;
+  height: 22px;
+}
 .plan-tier__name .icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 .dropdown__chevron .icon {
   width: 14px;
@@ -782,14 +793,18 @@ h2 {
   animation: iconPopIn 0.3s ease 0.14s both;
 }
 
-/* Agency — rear mass slides in only (front stays put) */
-.plan-tier:hover .icon--agency svg > :nth-child(n+10),
-.plan-card:hover .icon--agency svg > :nth-child(n+10) {
-  animation: iconAgencyRear 0.4s cubic-bezier(0.33, 1, 0.68, 1) both;
+/* Agency — whole building draws in */
+.icon--agency svg > :not(:first-child) {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 0;
 }
-@keyframes iconAgencyRear {
-  from { transform: translateY(-5px); }
-  to { transform: translateY(0); }
+.plan-tier:hover .icon--agency svg > :not(:first-child),
+.plan-card:hover .icon--agency svg > :not(:first-child) {
+  animation: iconAgencyDraw 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+@keyframes iconAgencyDraw {
+  from { stroke-dashoffset: 320; }
+  to { stroke-dashoffset: 0; }
 }
 .page-title:hover .icon--workspace svg > path:nth-child(8),
 .page-title:hover .icon--workspace svg > line {
@@ -1056,8 +1071,9 @@ h2 {
   background: var(--surface);
   box-shadow: var(--elevation);
   overflow: visible;
-  flex: 1 1 auto;
-  min-height: 0;
+  /* Grow with rows; don't shrink — panel scrolls so the table isn't clipped */
+  flex: 1 0 auto;
+  min-height: auto;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .members-list--fading {
@@ -1452,9 +1468,13 @@ body.is-reordering * {
   justify-content: flex-end;
   align-items: center;
   gap: 4px;
-  min-height: 32px;
-  width: 32px;
+  min-height: var(--member-control-h, 32px);
+  width: var(--member-control-h, 32px);
   flex-shrink: 0;
+}
+
+.member-trailing {
+  --member-control-h: 32px;
 }
 
 /* Permissions column ? same button language as role dropdowns */
@@ -1544,18 +1564,18 @@ body.is-reordering * {
   border-color: var(--ink);
 }
 .btn--icon:focus-visible { outline: none; box-shadow: var(--focus); }
-.member-actions .btn--icon-danger {
+.row-actions .btn--icon-danger {
   color: var(--terracotta-text);
   background: var(--surface);
   border: 2px solid var(--ink);
   box-shadow: var(--elevation-sm);
   transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.05s ease;
 }
-.member-actions .btn--icon-danger:hover {
+.row-actions .btn--icon-danger:hover {
   background: var(--terracotta-fill);
   border-color: var(--ink);
 }
-.member-actions .btn--icon-danger:active {
+.row-actions .btn--icon-danger:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--shadow-hard);
 }
@@ -1907,7 +1927,7 @@ body.is-reordering * {
 }
 .plan-card__label { margin: 0; font-size: 12px; color: var(--ink-muted); }
 .plan-card__name {
-  margin: 4px 0 0;
+  margin: 8px 0 0;
   font-family: var(--font-display);
   font-size: clamp(20px, 2.6vh, 26px);
   font-weight: 700;
@@ -1915,7 +1935,11 @@ body.is-reordering * {
   line-height: 1.15;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+.plan-card__name #plan-name {
+  display: inline-block;
+  line-height: 1.15;
 }
 .plan-card__price {
   margin: 6px 0 0;
@@ -2560,7 +2584,7 @@ body.is-reordering * {
 .plan-tier__head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
 }
 .plan-tier__name {
@@ -2572,6 +2596,7 @@ body.is-reordering * {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  line-height: 1.15;
 }
 .plan-tier__price {
   margin: 0;
@@ -2660,11 +2685,13 @@ body.is-reordering * {
   inset: 0;
   background: var(--overlay-scrim);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  z-index: 10;
-  padding: 16px;
+  z-index: 60;
+  padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px));
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.16s ease;
@@ -2682,6 +2709,7 @@ body.is-reordering * {
   transition:
     opacity 0.16s ease,
     transform 0.16s cubic-bezier(0.2, 0.9, 0.2, 1);
+  margin-block: auto;
 }
 .overlay.overlay--open .modal {
   opacity: 1;
@@ -2697,6 +2725,7 @@ body.is-reordering * {
   max-width: 400px;
   box-shadow: var(--elevation);
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: visible;
 }
 .modal--sm { max-width: 340px; }
@@ -2864,12 +2893,20 @@ body.is-reordering * {
     grid-area: trailing;
     justify-self: start;
     justify-content: flex-start;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
     width: auto;
   }
   .member-perms {
-    width: auto;
-    min-width: 32px;
+    width: var(--member-control-h, 32px);
+    min-width: var(--member-control-h, 32px);
+  }
+  .member-perms .btn--perm-icon {
+    width: var(--member-control-h, 32px);
+    min-width: var(--member-control-h, 32px);
+  }
+  .row-actions {
+    width: var(--member-control-h, 32px);
   }
   .member-perms .perm-placeholder {
     display: none;
@@ -3096,6 +3133,20 @@ body.is-reordering * {
 
   .plan-tiers {
     grid-template-columns: 1fr;
+  }
+
+  .overlay {
+    padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(12px, env(safe-area-inset-bottom, 0px));
+  }
+  .modal {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .modal--wide {
+    max-width: 100%;
+  }
+  .modal--scroll {
+    -webkit-overflow-scrolling: touch;
   }
 
   .invoice-history-list li {
