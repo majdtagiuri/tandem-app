@@ -1,4 +1,4 @@
-/* Brand display face ? files live in public/fonts (Vite serves /fonts/?) */
+﻿/* Brand display face ? files live in public/fonts (Vite serves /fonts/?) */
 @font-face {
   font-family: 'Bogart';
   src: url('/fonts/bogart/BOGARTREGULARTRIAL.TTF') format('truetype');
@@ -87,6 +87,8 @@
   --teal-soft: #3D7F6E;
   --moss: #C3C77A;
   --blush-soft: #F0C7CF;
+  --pending: #E8C84A;
+  --pending-text: #7A5F0A;
 
   /* App DNA accents = landing bold hexes */
   --red: var(--red-bold);
@@ -127,6 +129,7 @@
   --teal-stroke: color-mix(in srgb, var(--teal-soft) 45%, var(--border-strong));
   --moss-fill: color-mix(in srgb, var(--moss) 35%, var(--surface));
   --moss-stroke: color-mix(in srgb, var(--moss) 55%, var(--border-strong));
+  --pending-fill: color-mix(in srgb, var(--pending) 42%, var(--surface));
   --terracotta-fill: color-mix(in srgb, var(--terracotta) 14%, var(--surface));
   --blush-fill: color-mix(in srgb, var(--blush-soft) 70%, var(--surface));
   --chartreuse-fill: color-mix(in srgb, var(--chartreuse-bold) 32%, var(--surface));
@@ -326,20 +329,24 @@ select,
   gap: 0;
 }
 
-/* Main content ? scroll lives in .panel: tabs line ? bottom of screen */
+/* Main content fills the main column; panel scrolls so the scrollbar sits on the far right */
 .content {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  padding: clamp(16px, 3vh, 40px) clamp(16px, 4vw, 48px) 0;
-  max-width: 920px;
+  max-width: none;
   width: 100%;
+  padding: clamp(16px, 3vh, 40px) 0 0 clamp(16px, 4vw, 48px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 .content-header {
+  max-width: 920px;
+  width: 100%;
   margin-bottom: 0;
+  padding-right: clamp(16px, 4vw, 48px);
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
@@ -480,6 +487,355 @@ h2 {
 [aria-expanded="true"] .icon--caret {
   transform: rotate(180deg);
 }
+
+/* ===== Icon hover motions (subtle, meaning-specific) ===== */
+.icon {
+  overflow: visible;
+  position: relative;
+}
+.icon svg {
+  overflow: visible;
+}
+.icon svg > *:not(:first-child) {
+  transform-box: view-box;
+  transform-origin: center;
+  transition:
+    transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+    stroke-dashoffset 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Settings — cog spins (6-tooth gear looks identical at rest after 180°) */
+.icon--settings svg {
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.nav-item:hover .icon--settings svg,
+.tab:hover .icon--settings svg {
+  animation: iconGearSpin 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes iconGearSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(180deg); }
+}
+
+/* Reorder — list lines drop in 1 → 2 → 3 (snappy) */
+.btn:hover .icon--reorder svg > line:nth-child(2),
+.btn:hover .icon--reorder svg > line:nth-child(5) {
+  animation: iconLineDrop 0.22s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+.btn:hover .icon--reorder svg > line:nth-child(3),
+.btn:hover .icon--reorder svg > line:nth-child(6) {
+  animation: iconLineDrop 0.22s cubic-bezier(0.33, 1, 0.68, 1) 0.04s both;
+}
+.btn:hover .icon--reorder svg > line:nth-child(4),
+.btn:hover .icon--reorder svg > line:nth-child(7) {
+  animation: iconLineDrop 0.22s cubic-bezier(0.33, 1, 0.68, 1) 0.08s both;
+}
+@keyframes iconLineDrop {
+  from { transform: translateY(-4px) scaleY(0); transform-origin: top center; }
+  to { transform: translateY(0) scaleY(1); transform-origin: top center; }
+}
+
+/* Done reordering — check draws left → right */
+.icon--check svg > polyline {
+  stroke-dasharray: 280;
+  stroke-dashoffset: 0;
+}
+.btn:hover .icon--check svg > polyline {
+  animation: iconTickDraw 0.45s ease both;
+}
+@keyframes iconTickDraw {
+  from { stroke-dashoffset: 280; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Invite — head first, then body + plus */
+.btn:hover .icon--invite svg > circle {
+  animation: iconPopIn 0.32s ease both;
+}
+.btn:hover .icon--invite svg > path,
+.btn:hover .icon--invite svg > line {
+  animation: iconPopIn 0.32s ease 0.16s both;
+}
+@keyframes iconPopIn {
+  from { transform: translateY(3px) scale(0); }
+  to { transform: translateY(0) scale(1); }
+}
+
+/* Edit — line grows from bottom-left tip, then retracts */
+.icon--edit::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  bottom: 1px;
+  width: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: left center;
+  pointer-events: none;
+}
+.btn:hover .icon--edit::after,
+.btn--perm:hover .icon--edit::after {
+  animation: iconWriteStroke 0.55s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+.btn:hover .icon--edit svg,
+.btn--perm:hover .icon--edit svg {
+  animation: iconPencilWrite 0.55s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+@keyframes iconWriteStroke {
+  0% { width: 0; }
+  55% { width: 85%; }
+  100% { width: 0; }
+}
+@keyframes iconPencilWrite {
+  0% { transform: translate(0, 0); }
+  55% { transform: translate(6px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Transfer — tip from one hinge, then fall from the opposite bottom corner */
+.btn--perm:hover .icon--transfer,
+.btn:hover .icon--transfer {
+  animation: iconCrownTip 0.55s cubic-bezier(0.33, 1, 0.68, 1);
+}
+@keyframes iconCrownTip {
+  0% {
+    transform: rotate(0deg);
+    transform-origin: 20% 15%;
+  }
+  40% {
+    transform: rotate(-8deg);
+    transform-origin: 20% 15%;
+  }
+  45% {
+    transform: rotate(-8deg);
+    transform-origin: 80% 95%;
+  }
+  80% {
+    transform: rotate(10deg);
+    transform-origin: 80% 95%;
+  }
+  100% {
+    transform: rotate(0deg);
+    transform-origin: 80% 95%;
+  }
+}
+
+/* Members tab — one person, then the other */
+.tab:hover .icon--members svg > circle,
+.tab:hover .icon--members svg > path:nth-child(3) {
+  animation: iconPopIn 0.32s ease both;
+}
+.tab:hover .icon--members svg > path:nth-child(4),
+.tab:hover .icon--members svg > path:nth-child(5) {
+  animation: iconPopIn 0.32s ease 0.14s both;
+}
+
+/* General — fader knobs slide more, staggered */
+.tab:hover .icon--general svg > line:nth-child(6) {
+  animation: iconSliderKnobA 0.7s ease;
+}
+.tab:hover .icon--general svg > line:nth-child(10) {
+  animation: iconSliderKnobB 0.7s ease 0.1s;
+}
+.tab:hover .icon--general svg > line:nth-child(9) {
+  animation: iconSliderKnobC 0.7s ease 0.2s;
+}
+@keyframes iconSliderKnobA {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-16px); }
+  70% { transform: translateY(10px); }
+}
+@keyframes iconSliderKnobB {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(14px); }
+  70% { transform: translateY(-12px); }
+}
+@keyframes iconSliderKnobC {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-14px); }
+  70% { transform: translateY(12px); }
+}
+
+/* Plan & billing — top card slot slides down into the holder */
+.tab:hover .icon--billing svg > path {
+  animation: iconCardIntoHolder 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes iconCardIntoHolder {
+  0% { transform: translateY(-10px) scaleY(0); transform-origin: top center; }
+  100% { transform: translateY(0) scaleY(1); transform-origin: top center; }
+}
+
+/* Trash / remove / delete — lid hinges from left and opens up */
+.btn:hover .icon--remove svg > path:nth-child(6),
+.btn:hover .icon--remove svg > line:nth-child(2),
+.btn--danger:hover .icon--remove svg > path:nth-child(6),
+.btn--danger:hover .icon--remove svg > line:nth-child(2),
+.row-menu__item:hover .icon--remove svg > path:nth-child(6),
+.row-menu__item:hover .icon--remove svg > line:nth-child(2) {
+  transform-origin: 40px 60px;
+  animation: iconTrashLid 0.5s ease;
+}
+@keyframes iconTrashLid {
+  0%, 100% { transform: rotate(0deg); }
+  45% { transform: rotate(-32deg); }
+  70% { transform: rotate(-22deg); }
+}
+
+/* Cancel invite (X) — slight error wiggle */
+.btn--icon:hover .icon--cancel,
+.btn:hover .icon--cancel {
+  animation: iconErrorWiggle 0.4s ease;
+}
+
+/* Deactivate — pause bars tilt into an X (hamburger-style, vertical) */
+.icon--deactivate svg > line:nth-child(3),
+.icon--deactivate svg > line:nth-child(4) {
+  transform-box: view-box;
+  transform-origin: 128px 128px;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.row-menu__item:hover .icon--deactivate svg > line:nth-child(3) {
+  transform: translateX(24px) rotate(45deg);
+}
+.row-menu__item:hover .icon--deactivate svg > line:nth-child(4) {
+  transform: translateX(-24px) rotate(-45deg);
+}
+
+/* Resend — spin */
+.btn--perm:hover .icon--resend svg,
+.btn:hover .icon--resend svg {
+  animation: iconSpinOnce 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes iconSpinOnce {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Payment card — swipe through a reader */
+.btn:hover .icon--card svg {
+  animation: iconCardSwipe 0.55s ease;
+}
+@keyframes iconCardSwipe {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+/* Cancel plan — error wiggle */
+.btn:hover .icon--ban svg {
+  animation: iconErrorWiggle 0.45s ease;
+}
+@keyframes iconErrorWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-7deg); }
+  80% { transform: rotate(4deg); }
+}
+
+/* Change plan — bottom arrow → right, top arrow → left, re-enter opposite side */
+.btn:hover .icon--swap svg > polyline:nth-child(2),
+.btn:hover .icon--swap svg > line:nth-child(3) {
+  animation: iconArrowBottomRight 0.7s ease;
+}
+.btn:hover .icon--swap svg > polyline:nth-child(4),
+.btn:hover .icon--swap svg > line:nth-child(5) {
+  animation: iconArrowTopLeft 0.7s ease;
+}
+@keyframes iconArrowBottomRight {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(14px); }
+  41% { transform: translateX(-14px); }
+  100% { transform: translateX(0); }
+}
+@keyframes iconArrowTopLeft {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-14px); }
+  41% { transform: translateX(14px); }
+  100% { transform: translateX(0); }
+}
+
+/* Solo plan — head then body */
+.plan-tier:hover .icon--solo svg > circle,
+.plan-card:hover .icon--solo svg > circle {
+  animation: iconPopIn 0.32s ease both;
+}
+.plan-tier:hover .icon--solo svg > path,
+.plan-card:hover .icon--solo svg > path {
+  animation: iconPopIn 0.32s ease 0.12s both;
+}
+
+/* Studio — front person, then people behind */
+.plan-tier:hover .icon--studio svg > circle,
+.plan-tier:hover .icon--studio svg > path:nth-child(3),
+.plan-card:hover .icon--studio svg > circle,
+.plan-card:hover .icon--studio svg > path:nth-child(3) {
+  animation: iconPopIn 0.3s ease both;
+}
+.plan-tier:hover .icon--studio svg > path:nth-child(4),
+.plan-tier:hover .icon--studio svg > path:nth-child(5),
+.plan-card:hover .icon--studio svg > path:nth-child(4),
+.plan-card:hover .icon--studio svg > path:nth-child(5) {
+  animation: iconPopIn 0.3s ease 0.14s both;
+}
+
+/* Agency — rear mass slides in only (front stays put) */
+.plan-tier:hover .icon--agency svg > :nth-child(n+10),
+.plan-card:hover .icon--agency svg > :nth-child(n+10) {
+  animation: iconAgencyRear 0.4s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+@keyframes iconAgencyRear {
+  from { transform: translateY(-5px); }
+  to { transform: translateY(0); }
+}
+.page-title:hover .icon--workspace svg > path:nth-child(8),
+.page-title:hover .icon--workspace svg > line {
+  animation: iconPopIn 0.3s ease both;
+}
+.page-title:hover .icon--workspace svg > path:nth-child(2) {
+  animation: iconPopIn 0.3s ease 0.14s both;
+}
+
+/* Tax — slash, then circles */
+.nav-item:hover .icon--tax svg > line {
+  animation: iconPopIn 0.28s ease both;
+}
+.nav-item:hover .icon--tax svg > circle:nth-child(3) {
+  animation: iconPopIn 0.28s ease 0.1s both;
+}
+.nav-item:hover .icon--tax svg > circle:nth-child(4) {
+  animation: iconPopIn 0.28s ease 0.18s both;
+}
+
+/* Invoice — print top → bottom */
+.nav-item:hover .icon--invoices svg {
+  animation: iconPrintDown 0.5s ease;
+}
+.nav-item:hover .icon--invoices svg > line:nth-child(2) {
+  animation: iconPopIn 0.25s ease 0.05s both;
+}
+.nav-item:hover .icon--invoices svg > line:nth-child(3) {
+  animation: iconPopIn 0.25s ease 0.14s both;
+}
+@keyframes iconPrintDown {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* Dashboard — smooth coin flip */
+.nav-item:hover .icon--dashboard svg {
+  animation: iconCoinFlip 0.75s cubic-bezier(0.4, 0.05, 0.2, 1);
+  transform-origin: center;
+  transform-style: preserve-3d;
+}
+@keyframes iconCoinFlip {
+  0% { transform: perspective(64px) rotateY(0deg); }
+  100% { transform: perspective(64px) rotateY(360deg); }
+}
+
 .tabs {
   display: flex;
   gap: 4px;
@@ -511,16 +867,24 @@ h2 {
 }
 
 .panel {
-  padding: clamp(14px, 2vh, 22px) 4px clamp(16px, 3vh, 40px) 0;
-  margin-right: -4px; /* room for hard shadows without clipping */
+  padding: clamp(28px, 3.6vh, 42px) clamp(16px, 4vw, 48px) clamp(16px, 3vh, 40px) 0;
+  margin-right: 0;
   flex: 1;
   min-height: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+/* Keep settings content readable; scrollbar stays on the full-width panel edge */
+.panel > * {
+  max-width: 920px;
+  width: 100%;
+  box-sizing: border-box;
 }
 /* Don't compress panel sections on short screens ? scroll instead */
 .panel > *:not(.members-list) {
@@ -529,7 +893,7 @@ h2 {
 
 /* Billing: tighter chrome so the plan card fits most viewports; scroll only when short */
 #tab-billing.panel {
-  padding-top: clamp(12px, 1.6vh, 18px);
+  padding-top: clamp(26px, 3.2vh, 38px);
 }
 #tab-billing .panel-header {
   margin-bottom: clamp(6px, 1vh, 12px);
@@ -761,14 +1125,26 @@ h2 {
 .member-row:hover { background: color-mix(in srgb, var(--paper) 70%, var(--surface)); z-index: 2; }
 .member-row:has(.dropdown--open),
 .member-row:has(.row-menu--open) { z-index: 6; }
+.member-row--inactive {
+  background: color-mix(in srgb, var(--ink) 4%, var(--surface));
+}
+.member-row--inactive:hover {
+  background: color-mix(in srgb, var(--ink) 6%, var(--surface));
+}
 .member-row--inactive .member-identity,
-.member-row--inactive .member-role,
+.member-row--inactive .member-status,
 .member-row--inactive .member-perms {
-  opacity: 0.72;
+  opacity: 0.42;
 }
 .member-row--inactive .row-actions,
 .member-row--inactive .drag-handle {
   opacity: 1;
+}
+.member-row--inactive .member-role .tag {
+  filter: grayscale(0.4);
+  background: color-mix(in srgb, var(--ink) 7%, var(--surface));
+  color: var(--ink-muted);
+  border-color: color-mix(in srgb, var(--ink) 35%, var(--surface));
 }
 .member-row--dragging {
   background: var(--surface) !important;
@@ -1011,7 +1387,14 @@ body.is-reordering * {
 }
 
 .member-status .status-label--pending {
-  color: var(--terracotta-text);
+  color: var(--pending-text);
+}
+
+/* Pending invite: role chip matches the yellow pending status */
+.member-row:has(.status-label--pending) .member-role .tag {
+  background: var(--pending-fill);
+  border-color: var(--ink);
+  color: var(--pending-text);
 }
 
 .member-status .status-label--inactive {
@@ -1300,8 +1683,8 @@ body.is-reordering * {
   border-color: var(--ink);
 }
 .tag--pending {
-  background: var(--moss-fill);
-  color: var(--moss-text);
+  background: var(--pending-fill);
+  color: var(--pending-text);
   border-color: var(--ink);
 }
 .tag--inactive {
@@ -2650,9 +3033,15 @@ body.is-reordering * {
   .sidebar-note { display: block; }
 
   .content {
-    padding: 16px 16px 0;
+    padding: 16px 0 0 16px;
     flex: 1;
     min-height: 0;
+  }
+  .content-header {
+    padding-right: 16px;
+  }
+  .panel {
+    padding-right: 16px;
   }
 
   .page-title { font-size: 24px; }
@@ -2743,7 +3132,9 @@ body.is-reordering * {
     flex: 1;
     min-width: 0;
   }
-  .content { padding: 12px 12px 0; }
+  .content { padding: 12px 0 0 12px; }
+  .content-header { padding-right: 12px; }
+  .panel { padding-right: 12px; }
   .members-header,
   .member-row {
     padding: 10px 12px;
@@ -2758,7 +3149,7 @@ body.is-reordering * {
   .sidebar { padding: 16px 14px; }
   .sidebar .brand { margin-bottom: 16px; }
   .content-header { margin-bottom: 0; }
-  .panel { padding-top: 14px; }
+  .panel { padding-top: 28px; }
   .panel-header { padding-top: 0; margin-bottom: 10px; }
   .nav-item { padding: 8px 10px; }
 }

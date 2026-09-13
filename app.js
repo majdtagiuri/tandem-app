@@ -101,7 +101,7 @@ function roleTag(role) {
 
 /* App meaning → Phosphor Bold filename key (see /icons + icons.js) */
 const APP_ICONS = {
-  dashboard: 'squares-four-bold',
+  dashboard: 'coin-vertical-bold',
   invoices: 'receipt-bold',
   tax: 'percent-bold',
   settings: 'gear-six-bold',
@@ -717,9 +717,10 @@ function buildRow(m) {
   row.dataset.id = String(m.id);
 
   const isPending = m.status === 'pending';
+  const isInactive = m.status === 'inactive';
   const isOwner = m.role === 'owner';
   const manage = canManageMembers();
-  const canEdit = manage && !isPending && !isOwner;
+  const canEdit = manage && !isPending && !isInactive && !isOwner;
   const avatarClass = isPending ? 'avatar avatar--pending' : 'avatar';
   const avatarContent = isPending ? '' : escapeHtml(initials(m.name));
   const safeName = escapeHtml(m.name);
@@ -748,7 +749,7 @@ function buildRow(m) {
   roleCell.className = 'member-role';
   if (isOwner) {
     roleCell.innerHTML = roleTag('owner');
-  } else if (isPending || !manage || reorderMode) {
+  } else if (isPending || isInactive || !manage || reorderMode) {
     roleCell.innerHTML = roleTag(m.role);
   } else {
     const dropdown = createDropdown({
@@ -1669,7 +1670,7 @@ function openPaymentModal(options = {}) {
     paymentIntent = 'save';
   }
 
-  submitBtn.innerHTML = `${iconSvg('card')}<span>Save card</span>`;
+  submitBtn.textContent = 'Save card';
   const emphasizePay = Boolean(due) && (preferPay || fromInvoice);
   submitBtn.classList.toggle('btn--primary', !emphasizePay);
   payBtn.classList.toggle('btn--primary', emphasizePay);
