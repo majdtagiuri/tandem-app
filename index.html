@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tandem — Workspace settings</title>
+<meta name="description" content="Manage workspace members, roles, billing, and settings in Tandem.">
+<link rel="icon" href="/FAVICON_TANDEM.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/FAVICON_TANDEM.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tandem">
+<meta property="og:title" content="Tandem — Workspace settings">
+<meta property="og:description" content="Manage workspace members, roles, billing, and settings in Tandem.">
+<meta property="og:image" content="/OPEN_GRAPH_SOCIAL_TANDEM.png">
+<meta property="og:image:alt" content="Tandem">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tandem — Workspace settings">
+<meta name="twitter:description" content="Manage workspace members, roles, billing, and settings in Tandem.">
+<meta name="twitter:image" content="/OPEN_GRAPH_SOCIAL_TANDEM.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -11,7 +27,34 @@
 <body>
 
 <div class="app-shell">
-  <aside class="sidebar">
+  <header class="mobile-topbar">
+    <img
+      class="mobile-topbar__logo"
+      src="/BLACK_FULLLOGO_TANDEM.svg"
+      alt="Tandem"
+      width="100"
+      height="17"
+      decoding="async"
+      draggable="false"
+    >
+    <button
+      type="button"
+      class="sidebar-toggle"
+      id="sidebar-toggle"
+      aria-label="Open menu"
+      aria-controls="app-sidebar"
+      aria-expanded="false"
+    >
+      <span class="sidebar-toggle__box" aria-hidden="true">
+        <span class="sidebar-toggle__line"></span>
+        <span class="sidebar-toggle__line"></span>
+      </span>
+    </button>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <aside class="sidebar" id="app-sidebar">
     <div class="brand">
       <img
         class="brand-logo"
