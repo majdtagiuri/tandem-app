@@ -1,4 +1,4 @@
-﻿/* Brand display face ? files live in public/fonts (Vite serves /fonts/?) */
+/* Brand display face ? files live in public/fonts (Vite serves /fonts/?) */
 @font-face {
   font-family: 'Bogart';
   src: url('/fonts/bogart/BOGARTREGULARTRIAL.TTF') format('truetype');
@@ -166,7 +166,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) var(--paper);
+  scrollbar-color: var(--ink-muted) var(--paper);
   /* Keep selection normal across empty space in the app */
   user-select: text;
   -webkit-user-select: text;
@@ -221,38 +221,44 @@ select,
   color: var(--red-bold);
 }
 
-/* App-wide scrollbar (Firefox + WebKit) ? no arrow buttons */
+/* App-wide scrollbar — no arrow buttons; thumb a bit more visible */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) var(--paper);
+  scrollbar-color: var(--ink-muted) var(--paper);
 }
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
-*::-webkit-scrollbar-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
+/* Force-hide scrollbar arrows (Windows Chromium keeps them otherwise) */
+*::-webkit-scrollbar-button,
 *::-webkit-scrollbar-button:single-button,
 *::-webkit-scrollbar-button:double-button,
 *::-webkit-scrollbar-button:vertical:start:decrement,
 *::-webkit-scrollbar-button:vertical:end:increment,
+*::-webkit-scrollbar-button:vertical:start:increment,
+*::-webkit-scrollbar-button:vertical:end:decrement,
 *::-webkit-scrollbar-button:horizontal:start:decrement,
-*::-webkit-scrollbar-button:horizontal:end:increment {
-  display: none;
-  width: 0;
-  height: 0;
+*::-webkit-scrollbar-button:horizontal:end:increment,
+*::-webkit-scrollbar-button:horizontal:start:increment,
+*::-webkit-scrollbar-button:horizontal:end:decrement {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
 }
 *::-webkit-scrollbar-track {
   background: var(--paper);
   border: 2px solid var(--ink);
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+  background: color-mix(in srgb, var(--ink) 42%, var(--border-strong));
   border: 2px solid var(--ink);
   border-radius: var(--radius);
+  min-height: 36px;
 }
 *::-webkit-scrollbar-thumb:hover {
   background: var(--ink-muted);
@@ -882,6 +888,17 @@ h2 {
   68% { transform: scaleY(0.78) translateY(3px); }
   80% { transform: scaleY(1.08) translateY(-1px); }
   100% { transform: scaleY(1) translateY(0); }
+}
+
+/* Export — same lift/land as upload (arrow out, tray absorbs the land) */
+.btn:hover .icon--export svg > polyline:nth-child(3),
+.btn:hover .icon--export svg > line:nth-child(4) {
+  animation: iconUploadArrow 0.75s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.btn:hover .icon--export svg > path:nth-child(2) {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: iconUploadTray 0.75s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Danger zone — warning badge wiggles when the zone is hovered */
@@ -2423,51 +2440,124 @@ body.is-reordering * {
   filter: brightness(1.04);
 }
 
-.payment-current {
-  margin-top: 8px;
-  padding: 12px 14px;
+/* Payment modal — light receipt sheet (echoes invoice-sheet) */
+.payment-sheet {
+  margin-top: 12px;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   background: var(--paper);
+  padding: 16px;
 }
-.payment-current__label {
+.payment-sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.payment-sheet__number {
   margin: 0;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-}
-.payment-current__value {
-  margin: 4px 0 0;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--ink);
+}
+.payment-sheet__status {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--teal-fill);
+  color: var(--teal-text);
+  white-space: nowrap;
+}
+.payment-sheet__status--empty {
+  background: var(--surface);
+  color: var(--ink-secondary);
+}
+.payment-sheet__status--due {
+  background: var(--terracotta-fill);
+  color: var(--terracotta-text);
+}
+.payment-sheet__rows {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.payment-sheet__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+}
+.payment-sheet__row dt {
+  margin: 0;
+  color: var(--ink-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+.payment-sheet__row dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.payment-current {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 .payment-remove-btn {
   margin-top: 10px;
   padding: 6px 8px;
   font-size: 13px;
 }
+.payment-sheet__line {
+  margin: 14px 0;
+  border-top: 1px solid rgba(23, 20, 18, 0.14);
+  border-bottom: 1px solid rgba(23, 20, 18, 0.14);
+  height: 0;
+  padding: 5px 0 0;
+}
 .payment-form__heading {
-  margin: 18px 0 0;
+  margin: 0 0 2px;
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
 }
+.payment-sheet__footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(23, 20, 18, 0.14);
+}
 .payment-due-note {
-  margin: 14px 0 0;
+  margin: 0;
   font-size: 13px;
   line-height: 1.5;
   color: var(--ink-secondary);
 }
 .payment-due-note--due {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   padding: 10px 12px;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
-  background: var(--teal-fill);
-  color: var(--teal-text);
+  background: var(--terracotta-fill);
+  color: var(--terracotta-text);
   font-weight: 500;
+}
+.payment-due-note__amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .billing-history {
@@ -2539,22 +2629,23 @@ body.is-reordering * {
 
 .invoice-history-list {
   list-style: none;
-  margin: 12px 0 0;
+  margin: 0;
   padding: 0;
-  border: 2px solid var(--ink);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--surface);
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
 }
 .invoice-history-list li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
-  border-top: 1px solid rgba(23, 20, 18, 0.12);
+  padding: 12px 0;
+  border-top: 1px dashed rgba(23, 20, 18, 0.22);
 }
-.invoice-history-list li:first-child { border-top: none; }
+.invoice-history-list li:first-child { border-top: none; padding-top: 0; }
+.invoice-history-list li:last-child { padding-bottom: 4px; }
 .invoice-history-list__main {
   min-width: 0;
 }
@@ -2563,6 +2654,7 @@ body.is-reordering * {
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 .invoice-history-list__meta {
   margin: 2px 0 0;
@@ -2578,6 +2670,66 @@ body.is-reordering * {
 .invoice-history-list__actions .btn {
   padding: 6px 10px;
   font-size: 12px;
+}
+
+/* Billing history — receipt sheet with ripped bottom */
+.receipt-sheet {
+  margin: 12px 0 18px;
+}
+.receipt-sheet__body {
+  padding: 16px 16px 8px;
+  border: 2px solid var(--ink);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--paper);
+}
+.receipt-sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(23, 20, 18, 0.28);
+}
+.receipt-sheet__number {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.receipt-sheet__count {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--chartreuse-fill);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.receipt-sheet__tear {
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin-top: -1px; /* overlap so fill/stroke meet the body borders */
+  overflow: visible;
+  color: var(--ink);
+  pointer-events: none;
+}
+.receipt-sheet__tear-fill {
+  fill: var(--paper);
+}
+.receipt-sheet__tear-edge {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: square;
+  vector-effect: non-scaling-stroke;
 }
 
 .field-row {

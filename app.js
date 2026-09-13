@@ -191,22 +191,22 @@ const state = {
     },
     {
       id: 3,
-      name: 'Hilary Taylor',
-      email: 'hilary.taylor@goswag.com',
-      position: 'Talent Acquisition Manager',
-      role: 'admin',
-      status: 'active',
-      avatar: '/goswag/Hilary Taylor.jpg',
-      permissions: permissionsForRole('admin')
-    },
-    {
-      id: 4,
       name: 'Marco Claudio Trecca',
       email: 'marco.trecca@goswag.com',
       position: 'Chief Product Officer',
       role: 'admin',
       status: 'active',
       avatar: '/goswag/Marco Claudio Trecca.jpg',
+      permissions: permissionsForRole('admin')
+    },
+    {
+      id: 4,
+      name: 'Hilary Taylor',
+      email: 'hilary.taylor@goswag.com',
+      position: 'Talent Acquisition Manager',
+      role: 'admin',
+      status: 'active',
+      avatar: '/goswag/Hilary Taylor.jpg',
       permissions: permissionsForRole('admin')
     },
     {
@@ -1866,7 +1866,10 @@ function renderBillingHistoryPreview() {
 
 function renderBillingHistoryList() {
   const list = document.getElementById('invoice-history-list');
-  list.innerHTML = state.billing.invoices.map(inv => `
+  const countEl = document.getElementById('billing-history-count');
+  const invoices = state.billing.invoices;
+  if (countEl) countEl.textContent = String(invoices.length);
+  list.innerHTML = invoices.map(inv => `
     <li>
       <div class="invoice-history-list__main">
         <p class="invoice-history-list__title">${escapeHtml(inv.number)}</p>
@@ -2012,6 +2015,7 @@ function openPaymentModal(options = {}) {
   const pm = state.billing.paymentMethod;
   const due = getDueInvoice();
   const lead = document.getElementById('payment-lead');
+  const sheetStatus = document.getElementById('payment-sheet-status');
   const currentLabel = document.getElementById('payment-current-label');
   const currentValue = document.getElementById('payment-current-value');
   const removeBtn = document.getElementById('payment-remove-btn');
@@ -2032,9 +2036,22 @@ function openPaymentModal(options = {}) {
   if (removeBtn) removeBtn.hidden = !hasCard;
   if (formHeading) formHeading.textContent = hasCard ? 'Update card' : 'Add card';
 
+  if (sheetStatus) {
+    sheetStatus.classList.remove('payment-sheet__status--empty', 'payment-sheet__status--due');
+    if (due) {
+      sheetStatus.textContent = 'Due';
+      sheetStatus.classList.add('payment-sheet__status--due');
+    } else if (hasCard) {
+      sheetStatus.textContent = 'On file';
+    } else {
+      sheetStatus.textContent = 'None';
+      sheetStatus.classList.add('payment-sheet__status--empty');
+    }
+  }
+
   if (due) {
     dueNote.classList.add('payment-due-note--due');
-    dueNote.innerHTML = `Payment due for <strong>${escapeHtml(due.number)}</strong> · ${formatMoney(due.amount + due.tax)}. Pay at the end of your cycle.`;
+    dueNote.innerHTML = `<span>Amount due · <strong>${escapeHtml(due.number)}</strong></span><span class="payment-due-note__amount">${formatMoney(due.amount + due.tax)}</span>`;
     payBtn.hidden = false;
     payBtn.innerHTML = `Pay ${formatMoney(due.amount + due.tax)}`;
     paymentIntent = preferPay || fromInvoice ? 'pay' : 'save';

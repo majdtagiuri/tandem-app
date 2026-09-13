@@ -431,10 +431,41 @@
 </div>
 
 <div class="overlay" id="billing-history-overlay" hidden>
-  <div class="modal modal--wide modal--scroll" role="dialog" aria-modal="true" aria-labelledby="billing-history-title">
+  <div class="modal modal--invoice modal--scroll" role="dialog" aria-modal="true" aria-labelledby="billing-history-title">
     <h2 id="billing-history-title">Billing history</h2>
     <p class="modal-lead">Paid invoices for this workspace. Open one for the full breakdown, or export everything at once.</p>
-    <ul class="invoice-history-list" id="invoice-history-list"></ul>
+
+    <div class="receipt-sheet">
+      <div class="receipt-sheet__body">
+        <div class="receipt-sheet__top">
+          <p class="receipt-sheet__number">Invoices</p>
+          <span class="receipt-sheet__count" id="billing-history-count">0</span>
+        </div>
+        <ul class="invoice-history-list" id="invoice-history-list"></ul>
+      </div>
+      <svg
+        class="receipt-sheet__tear"
+        viewBox="0 0 400 40"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <!-- Paper fill under the tear (joins the body) -->
+        <path
+          class="receipt-sheet__tear-fill"
+          d="M0 0 H400 V2
+             L367 28 L334 6 L301 29 L268 5 L235 28 L202 6 L169 29 L136 5 L103 28 L70 6 L37 28 L0 2 Z"
+        />
+        <!-- Ink edge: side strokes into a more even zigzag -->
+        <path
+          class="receipt-sheet__tear-edge"
+          d="M1 0 V2
+             L37 28 L70 6 L103 28 L136 5 L169 29 L202 6 L235 28 L268 5 L301 29 L334 6 L367 28
+             L399 2 V0"
+        />
+      </svg>
+    </div>
+
     <div class="modal-actions">
       <button class="btn" id="billing-history-close" type="button">Close</button>
       <button class="btn btn--primary" id="billing-history-export-all" type="button"><span data-icon="export" aria-hidden="true"></span>Export all</button>
@@ -458,41 +489,56 @@
 </div>
 
 <div class="overlay" id="payment-overlay" hidden>
-  <div class="modal modal--scroll" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+  <div class="modal modal--invoice modal--scroll" role="dialog" aria-modal="true" aria-labelledby="payment-title">
     <h2 id="payment-title">Payment</h2>
     <p class="modal-lead" id="payment-lead">View your card, update it, or pay when a bill is due at the end of your cycle.</p>
 
-    <div class="payment-current" id="payment-current">
-      <p class="payment-current__label" id="payment-current-label">Current card</p>
-      <p class="payment-current__value" id="payment-current-value">Visa ending in 4242</p>
-      <button type="button" class="btn btn--text-danger payment-remove-btn" id="payment-remove-btn">
-        <span data-icon="remove" aria-hidden="true"></span>
-        Remove payment method
-      </button>
-    </div>
-
-    <form class="payment-form" id="payment-form" autocomplete="off">
-      <p class="payment-form__heading" id="payment-form-heading">Update card</p>
-      <label class="field-label" for="pay-name">Name on card</label>
-      <input type="text" id="pay-name" name="card-name" placeholder="Alex Rivera" maxlength="60">
-
-      <label class="field-label" for="pay-number">Card number</label>
-      <input type="text" id="pay-number" name="card-number" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
-
-      <div class="field-row">
-        <div>
-          <label class="field-label" for="pay-expiry">Expiry</label>
-          <input type="text" id="pay-expiry" name="card-expiry" inputmode="numeric" placeholder="MM/YY" maxlength="5">
-        </div>
-        <div>
-          <label class="field-label" for="pay-cvc">CVC</label>
-          <input type="text" id="pay-cvc" name="card-cvc" inputmode="numeric" placeholder="123" maxlength="4">
-        </div>
+    <div class="payment-sheet">
+      <div class="payment-sheet__top">
+        <p class="payment-sheet__number" id="payment-sheet-title">Payment method</p>
+        <span class="payment-sheet__status" id="payment-sheet-status">On file</span>
       </div>
-      <p class="field-error" id="payment-error" hidden></p>
-    </form>
 
-    <p class="payment-due-note" id="payment-due-note">No payment due. Your next charge is on <span id="payment-next-date">October 12, 2026</span>.</p>
+      <div class="payment-current" id="payment-current">
+        <dl class="payment-sheet__rows">
+          <div class="payment-sheet__row">
+            <dt id="payment-current-label">Current card</dt>
+            <dd id="payment-current-value">Visa ending in 4242</dd>
+          </div>
+        </dl>
+        <button type="button" class="btn btn--text-danger payment-remove-btn" id="payment-remove-btn">
+          <span data-icon="remove" aria-hidden="true"></span>
+          Remove payment method
+        </button>
+      </div>
+
+      <div class="payment-sheet__line" aria-hidden="true"></div>
+
+      <form class="payment-form" id="payment-form" autocomplete="off">
+        <p class="payment-form__heading" id="payment-form-heading">Update card</p>
+        <label class="field-label" for="pay-name">Name on card</label>
+        <input type="text" id="pay-name" name="card-name" placeholder="Alex Rivera" maxlength="60">
+
+        <label class="field-label" for="pay-number">Card number</label>
+        <input type="text" id="pay-number" name="card-number" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
+
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="pay-expiry">Expiry</label>
+            <input type="text" id="pay-expiry" name="card-expiry" inputmode="numeric" placeholder="MM/YY" maxlength="5">
+          </div>
+          <div>
+            <label class="field-label" for="pay-cvc">CVC</label>
+            <input type="text" id="pay-cvc" name="card-cvc" inputmode="numeric" placeholder="123" maxlength="4">
+          </div>
+        </div>
+        <p class="field-error" id="payment-error" hidden></p>
+      </form>
+
+      <div class="payment-sheet__footer">
+        <p class="payment-due-note" id="payment-due-note">No payment due. Your next charge is on <span id="payment-next-date">October 12, 2026</span>.</p>
+      </div>
+    </div>
 
     <div class="modal-actions">
       <button class="btn" id="payment-cancel" type="button">Cancel</button>
