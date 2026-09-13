@@ -46,6 +46,13 @@ const OWNER_PERMISSIONS = {
 };
 
 const PLANS = {
+  free: {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    seats: 1,
+    features: ['1 seat', 'View workspace only', 'Upgrade to unlock invites & billing tools']
+  },
   solo: {
     id: 'solo',
     name: 'Solo',
@@ -57,8 +64,8 @@ const PLANS = {
     id: 'studio',
     name: 'Studio',
     price: 29,
-    seats: 5,
-    features: ['5 seats', 'Role-based access', 'Invoice & tax exports']
+    seats: 10,
+    features: ['10 seats', 'Role-based access', 'Invoice & tax exports']
   },
   agency: {
     id: 'agency',
@@ -112,6 +119,7 @@ const APP_ICONS = {
   solo: 'user-bold',
   studio: 'users-three-bold',
   agency: 'building-office-bold',
+  free: 'gift-bold',
   invite: 'user-plus-bold',
   edit: 'pencil-simple-bold',
   deactivate: 'pause-circle-bold',
@@ -130,7 +138,8 @@ const APP_ICONS = {
   menu: 'dots-three-vertical-bold',
   export: 'export-bold',
   warning: 'warning-circle-bold',
-  restore: 'arrow-counter-clockwise-bold'
+  restore: 'arrow-counter-clockwise-bold',
+  upload: 'upload-simple-bold'
 };
 
 function iconSvg(name, extraClass = '') {
@@ -162,41 +171,88 @@ const state = {
   members: [
     {
       id: 1,
-      name: 'Majd (you)',
-      email: 'majd@studio.co',
+      name: 'Conor McKenna',
+      email: 'conor.mckenna@goswag.com',
+      position: 'CEO & Co-Founder',
       role: 'owner',
       status: 'active',
+      avatar: '/goswag/Conor McKenna.jpg',
       permissions: permissionsForRole('owner')
     },
     {
       id: 2,
-      name: 'Reem K.',
-      email: 'reem@studio.co',
+      name: 'Ben Greenock',
+      email: 'ben.greenock@goswag.com',
+      position: 'CCO & Co-Founder',
       role: 'admin',
       status: 'active',
+      avatar: '/goswag/Ben Greenock.jpg',
       permissions: permissionsForRole('admin')
     },
     {
       id: 3,
-      name: 'Jordan T.',
-      email: 'jordan@studio.co',
+      name: 'Hilary Taylor',
+      email: 'hilary.taylor@goswag.com',
+      position: 'Talent Acquisition Manager',
+      role: 'admin',
+      status: 'active',
+      avatar: '/goswag/Hilary Taylor.jpg',
+      permissions: permissionsForRole('admin')
+    },
+    {
+      id: 4,
+      name: 'Marco Claudio Trecca',
+      email: 'marco.trecca@goswag.com',
+      position: 'Chief Product Officer',
+      role: 'admin',
+      status: 'active',
+      avatar: '/goswag/Marco Claudio Trecca.jpg',
+      permissions: permissionsForRole('admin')
+    },
+    {
+      id: 5,
+      name: 'Conner M.',
+      email: 'conner.m@goswag.com',
+      position: 'Lead Engineer',
       role: 'member',
       status: 'active',
       permissions: permissionsForRole('member')
     },
     {
-      id: 4,
-      name: 'sam@freelance.co',
-      email: 'sam@freelance.co',
+      id: 6,
+      name: 'Hollie Russell-McGinnis',
+      email: 'hollie.russell@goswag.com',
+      position: 'Graphic Design Lead',
       role: 'member',
-      status: 'pending',
+      status: 'active',
+      avatar: '/goswag/Hollie Russell-McGinnis.jpg',
       permissions: permissionsForRole('member')
+    },
+    {
+      id: 7,
+      name: 'Rebecca Cooper',
+      email: 'rebecca.cooper@goswag.com',
+      position: 'Head of Growth',
+      role: 'viewer',
+      status: 'pending',
+      avatar: '/goswag/Rebecca Cooper.jpg',
+      permissions: permissionsForRole('viewer')
+    },
+    {
+      id: 8,
+      name: 'Chantelle MacNeil',
+      email: 'chantelle.macneil@goswag.com',
+      position: 'Head of Sales',
+      role: 'viewer',
+      status: 'inactive',
+      avatar: '/goswag/Chantelle MacNeil.jpg',
+      permissions: permissionsForRole('viewer')
     }
   ],
   billing: {
-    planId: 'studio',
+    planId: 'agency',
     cycle: 'monthly',
-    status: 'active', // active | canceling
+    status: 'active', // active | canceling | free
     nextBillingDate: 'October 12, 2026',
     paymentMethod: { brand: 'Visa', last4: '4242' },
     invoices: [
@@ -205,8 +261,8 @@ const state = {
         number: 'INV-2026-09',
         date: 'Sep 12, 2026',
         period: 'Sep 12 – Oct 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -216,8 +272,8 @@ const state = {
         number: 'INV-2026-08',
         date: 'Aug 12, 2026',
         period: 'Aug 12 – Sep 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -227,8 +283,8 @@ const state = {
         number: 'INV-2026-07',
         date: 'Jul 12, 2026',
         period: 'Jul 12 – Aug 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -238,8 +294,8 @@ const state = {
         number: 'INV-2026-06',
         date: 'Jun 12, 2026',
         period: 'Jun 12 – Jul 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -249,8 +305,8 @@ const state = {
         number: 'INV-2026-05',
         date: 'May 12, 2026',
         period: 'May 12 – Jun 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -260,8 +316,8 @@ const state = {
         number: 'INV-2026-04',
         date: 'Apr 12, 2026',
         period: 'Apr 12 – May 11, 2026',
-        planName: 'Studio',
-        amount: 29,
+        planName: 'Agency',
+        amount: 79,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -270,7 +326,7 @@ const state = {
   }
 };
 
-let nextId = 5;
+let nextId = 9;
 let pendingRemoveId = null;
 let pendingDeactivateId = null;
 let pendingCancelInviteId = null;
@@ -302,6 +358,25 @@ function canManageBilling() {
 
 function canTransferOwnership() {
   return viewAs === 'owner';
+}
+
+function isFreePlan() {
+  return state.billing.status === 'free' || state.billing.planId === 'free';
+}
+
+function hasPaymentMethod() {
+  const pm = state.billing.paymentMethod;
+  return Boolean(pm && pm.brand && pm.last4);
+}
+
+/** Paid-plan team controls (invites, roles, permissions) — locked on Free */
+function canEditTeam() {
+  return canManageMembers() && !isFreePlan();
+}
+
+function promptUpgrade(reason) {
+  showToast(reason || 'Upgrade your plan to unlock this');
+  if (canManageBilling()) openChangePlan();
 }
 
 function viewAsLabel() {
@@ -342,6 +417,9 @@ function applyViewAs() {
   }
   if (generalHint) generalHint.hidden = !manageSettings;
 
+  const logoUpload = document.getElementById('workspace-logo-upload');
+  if (logoUpload) logoUpload.hidden = !manageSettings;
+
   const dangerZone = document.getElementById('danger-zone');
   if (dangerZone) dangerZone.hidden = viewAs !== 'owner';
 
@@ -357,7 +435,7 @@ function applyViewAs() {
     switchTab('general');
   }
 
-  if (reorderMode && !canManageMembers()) {
+  if (reorderMode && !canEditTeam()) {
     reorderMode = false;
     document.body.classList.remove('is-reordering');
   }
@@ -387,33 +465,44 @@ document.querySelectorAll('[data-view-as]').forEach(btn => {
   });
 });
 
-const JUST_JOINED_ID = 5;
+let justJoinedMemberId = null;
 
 function activateJustJoinedMember() {
-  let casey = state.members.find(m => m.id === JUST_JOINED_ID || m.email === 'casey@studio.co');
-  if (!casey) {
-    casey = {
-      id: JUST_JOINED_ID,
-      name: 'Casey L.',
-      email: 'casey@studio.co',
-      role: 'member',
-      status: 'pending',
-      order: state.members.length,
-      permissions: permissionsForRole('member')
-    };
-    state.members.push(casey);
-    if (nextId <= JUST_JOINED_ID) nextId = JUST_JOINED_ID + 1;
+  // Preview as Other = the pending invitee accepting and entering the workspace
+  let person = state.members.find(m => m.email === 'rebecca.cooper@goswag.com');
+  if (!person) {
+    person = state.members.find(m => m.status === 'pending');
   }
-  if (casey.status === 'pending') {
-    casey.status = 'active';
-    casey.name = 'Casey L.';
+  if (!person) return;
+
+  if (person.status === 'pending') {
+    person.status = 'active';
   }
+  justJoinedMemberId = person.id;
 }
 
 function openWelcomeJoinModal() {
+  const person = state.members.find(m => m.id === justJoinedMemberId)
+    || state.members.find(m => m.email === 'rebecca.cooper@goswag.com');
+  const workspaceName = document.getElementById('workspace-name')?.value.trim() || 'Go Swag';
+  const title = document.getElementById('welcome-join-title');
+  const lead = document.getElementById('welcome-join-lead');
   const note = document.getElementById('welcome-join-note');
+
+  if (title) title.textContent = `Welcome to ${workspaceName}`;
+  if (person && lead) {
+    lead.innerHTML =
+      `You're <strong>${escapeHtml(person.name)}</strong>. You just accepted the invite sent to
+      <strong>${escapeHtml(person.email)}</strong> and joined as a <strong>${escapeHtml(roleLabel(person.role))}</strong>
+      — this is the view right after entering the workspace.`;
+  } else if (lead) {
+    lead.textContent = 'You joined this workspace from the invite link sent to your email.';
+  }
   if (note) {
-    note.textContent = 'Casey L. just accepted their invite too and is now active on the team.';
+    note.textContent = person
+      ? `${person.name}${person.position ? ` · ${person.position}` : ''} is now active on the team.`
+      : '';
+    note.hidden = !person;
   }
   switchTab('members');
   openOverlay('welcome-join-overlay');
@@ -616,6 +705,63 @@ document.addEventListener('mousedown', (e) => {
   if (openRowMenu && !openRowMenu.contains(e.target)) closeRowMenu();
 });
 
+/* Keep selection when drag-select ends on empty / non-editable chrome */
+(function preserveTextSelection() {
+  let selecting = false;
+  let saved = null;
+
+  document.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest('input, textarea, select, [contenteditable="true"]')) {
+      selecting = false;
+      saved = null;
+      return;
+    }
+    selecting = true;
+    saved = null;
+  }, true);
+
+  document.addEventListener('selectionchange', () => {
+    if (!selecting) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    try {
+      saved = sel.getRangeAt(0).cloneRange();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  document.addEventListener('pointerup', (e) => {
+    if (!selecting) return;
+    selecting = false;
+    if (!saved || saved.collapsed) {
+      saved = null;
+      return;
+    }
+    const sel = window.getSelection();
+    const lost = !sel || !sel.rangeCount || sel.isCollapsed;
+    if (!lost) {
+      saved = null;
+      return;
+    }
+    const interactive = e.target.closest(
+      'button, a, input, textarea, select, label, .dropdown__option, .nav-item, .tab, .drag-handle, .row-menu__list'
+    );
+    if (interactive) {
+      saved = null;
+      return;
+    }
+    try {
+      sel.removeAllRanges();
+      sel.addRange(saved);
+    } catch {
+      /* ignore */
+    }
+    saved = null;
+  }, true);
+})();
+
 /* ---------- Members ---------- */
 
 function closeRowMenu() {
@@ -675,13 +821,37 @@ function buildRowMenu(m) {
   panel.className = 'row-menu__panel';
   panel.setAttribute('role', 'menu');
 
+  const editTeam = canEditTeam();
+  const manage = canManageMembers();
+  const isOwner = m.role === 'owner';
   const items = [];
-  if (m.status === 'active') {
-    items.push({ action: 'deactivate', label: 'Deactivate', icon: 'deactivate' });
-  } else if (m.status === 'inactive') {
-    items.push({ action: 'activate', label: 'Activate', icon: 'activate' });
+
+  if (manage) {
+    items.push({ action: 'edit-info', label: 'Information', icon: 'edit' });
   }
-  items.push({ action: 'remove', label: 'Remove', danger: true, icon: 'remove' });
+
+  if (isOwner) {
+    if (canTransferOwnership()) {
+      items.push({ action: 'transfer-ownership', label: 'Transfer ownership', icon: 'transfer' });
+    }
+  } else {
+    if (editTeam && m.status === 'active') {
+      items.push({ action: 'permissions', label: 'Permissions', icon: 'manage' });
+    }
+    if (editTeam && m.status === 'pending') {
+      items.push({ action: 'resend', label: 'Resend invite', icon: 'resend' });
+    }
+    if (m.status === 'active') {
+      items.push({ action: 'deactivate', label: 'Deactivate', icon: 'deactivate' });
+    } else if (m.status === 'inactive') {
+      items.push({ action: 'activate', label: 'Activate', icon: 'activate' });
+    }
+    if (manage && m.status === 'pending') {
+      items.push({ action: 'cancel-invite', label: 'Cancel invite', danger: true, icon: 'cancel' });
+    } else if (manage) {
+      items.push({ action: 'remove', label: 'Remove', danger: true, icon: 'remove' });
+    }
+  }
 
   items.forEach(item => {
     const btn = document.createElement('button');
@@ -720,19 +890,34 @@ function buildRow(m) {
   const isInactive = m.status === 'inactive';
   const isOwner = m.role === 'owner';
   const manage = canManageMembers();
-  const canEdit = manage && !isPending && !isInactive && !isOwner;
-  const avatarClass = isPending ? 'avatar avatar--pending' : 'avatar';
-  const avatarContent = isPending ? '' : escapeHtml(initials(m.name));
-  const safeName = escapeHtml(m.name);
+  const editTeam = canEditTeam();
+  const canEdit = editTeam && !isPending && !isInactive && !isOwner;
+  const showPhoto = Boolean(m.avatar) && m.status === 'active';
+  const avatarClass = isPending
+    ? 'avatar avatar--pending'
+    : showPhoto
+      ? 'avatar avatar--photo'
+      : 'avatar';
+  const avatarContent = showPhoto
+    ? `<img class="avatar__img" src="${escapeHtml(encodeURI(m.avatar))}" alt="" width="32" height="32" decoding="async" draggable="false">`
+    : isPending
+      ? ''
+      : escapeHtml(initials(m.name));
+  const displayName = (viewAs === 'other' && m.id === justJoinedMemberId)
+    ? `${m.name} (you)`
+    : m.name;
+  const safeName = escapeHtml(displayName);
   const safeEmail = escapeHtml(m.email);
+  const safePosition = escapeHtml(m.position || '');
+  const emailLine = isPending ? `Invited · ${safeEmail}` : safeEmail;
 
   const info = document.createElement('div');
   info.className = 'member-info';
 
-  if (!isOwner && manage) {
+  if (!isOwner && editTeam) {
     const handle = document.createElement('div');
     handle.className = 'drag-handle';
-    handle.innerHTML = `<button type="button" class="drag-handle__btn" aria-label="Drag to reorder ${safeName}" data-tooltip="Drag to reorder" data-drag-id="${m.id}" tabindex="${reorderMode ? '0' : '-1'}"><span class="drag-handle__lines" aria-hidden="true"></span></button>`;
+    handle.innerHTML = `<button type="button" class="drag-handle__btn" aria-label="Drag to reorder ${escapeHtml(m.name)}" data-tooltip="Drag to reorder" data-drag-id="${m.id}" tabindex="${reorderMode ? '0' : '-1'}"><span class="drag-handle__lines" aria-hidden="true"></span></button>`;
     info.appendChild(handle);
   }
 
@@ -741,15 +926,21 @@ function buildRow(m) {
   identity.innerHTML = `
     <div class="${avatarClass}" aria-hidden="true">${avatarContent}</div>
     <p class="member-name">${safeName}</p>
-    <p class="member-email">${isPending ? 'Invited · ' + safeEmail : safeEmail}</p>
+    <p class="member-email">${emailLine}</p>
   `;
   info.appendChild(identity);
+
+  const positionCell = document.createElement('div');
+  positionCell.className = 'member-position';
+  positionCell.innerHTML = safePosition
+    ? `<span class="member-position__text">${safePosition}</span>`
+    : `<span class="perm-placeholder" aria-hidden="true">—</span>`;
 
   const roleCell = document.createElement('div');
   roleCell.className = 'member-role';
   if (isOwner) {
     roleCell.innerHTML = roleTag('owner');
-  } else if (isPending || isInactive || !manage || reorderMode) {
+  } else if (isPending || isInactive || !editTeam || reorderMode) {
     roleCell.innerHTML = roleTag(m.role);
   } else {
     const dropdown = createDropdown({
@@ -766,23 +957,9 @@ function buildRow(m) {
   statusCell.className = 'member-status';
   statusCell.innerHTML = statusTag(m.status);
 
-  const permCell = document.createElement('div');
-  permCell.className = 'member-perms';
-  if (canEdit && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="permissions" data-id="${m.id}" aria-label="Edit permissions" data-tooltip="Edit permissions">${iconSvg('edit')}</button>`;
-  } else if (isOwner && canTransferOwnership() && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="transfer-ownership" aria-label="Transfer ownership" data-tooltip="Transfer ownership">${iconSvg('transfer')}</button>`;
-  } else if (isPending && manage && !reorderMode) {
-    permCell.innerHTML = `<button type="button" class="btn btn--perm btn--perm-icon" data-action="resend" data-id="${m.id}" aria-label="Resend invite" data-tooltip="Resend invite">${iconSvg('resend')}</button>`;
-  } else {
-    permCell.innerHTML = `<span class="perm-placeholder" aria-hidden="true">—</span>`;
-  }
-
   const actions = document.createElement('div');
   actions.className = 'row-actions';
-  if (isPending && manage) {
-    actions.innerHTML = `<button type="button" class="btn--icon btn--icon-danger" data-action="cancel-invite" data-id="${m.id}" aria-label="Cancel invite to ${safeEmail}" data-tooltip="Cancel this invite">${iconSvg('cancel')}</button>`;
-  } else if (isOwner || reorderMode || !manage) {
+  if (reorderMode || !manage) {
     actions.innerHTML = `<span class="row-actions-spacer" aria-hidden="true"></span>`;
   } else {
     actions.appendChild(buildRowMenu(m));
@@ -790,14 +967,15 @@ function buildRow(m) {
 
   const trailing = document.createElement('div');
   trailing.className = 'member-trailing';
-  trailing.append(permCell, actions);
+  trailing.append(statusCell, actions);
 
-  row.append(info, roleCell, statusCell, trailing);
+  row.append(info, positionCell, roleCell, trailing);
   return row;
 }
 
 function setReorderHeaderState(on) {
   const manage = canManageMembers();
+  const editTeam = canEditTeam();
   const defaults = document.getElementById('header-actions-default');
   const reorderSet = document.getElementById('header-actions-reorder');
   const showDefault = !on && manage;
@@ -814,6 +992,16 @@ function setReorderHeaderState(on) {
 
   // Hide the whole default set when preview-as Other (no manage)
   defaults.hidden = !manage && !on;
+
+  const reorderBtn = document.getElementById('reorder-btn');
+  const inviteBtn = document.getElementById('invite-btn');
+  if (reorderBtn) {
+    reorderBtn.disabled = false;
+    reorderBtn.setAttribute('data-tooltip', editTeam ? 'Reorder members' : 'Upgrade to reorder the team');
+  }
+  if (inviteBtn) {
+    inviteBtn.setAttribute('data-tooltip', editTeam ? 'Invite a teammate' : 'Upgrade to invite teammates');
+  }
 }
 
 function renderMembers(options = {}) {
@@ -831,10 +1019,10 @@ function renderMembers(options = {}) {
   header.className = 'members-header';
   header.innerHTML = `
     <span>Person</span>
+    <span class="members-header__position">Position</span>
     <span class="members-header__role">Role</span>
-    <span class="members-header__status">Status</span>
     <div class="members-header__trailing">
-      <span class="members-header__perms">Permissions</span>
+      <span class="members-header__status">Status</span>
       <span class="members-header__actions" aria-hidden="true"></span>
     </div>
   `;
@@ -881,7 +1069,10 @@ function renderMembers(options = {}) {
 }
 
 function changeRole(id, role) {
-  if (!canManageMembers()) return;
+  if (!canEditTeam()) {
+    promptUpgrade('Upgrade your plan to change roles');
+    return;
+  }
   const m = state.members.find(x => x.id === id);
   if (!m || m.role === 'owner' || m.status === 'pending') return;
   m.role = role;
@@ -898,7 +1089,11 @@ function changeRole(id, role) {
 }
 
 function enterReorderMode() {
-  if (!canManageMembers() || reorderMode) return;
+  if (!canEditTeam()) {
+    promptUpgrade('Upgrade your plan to reorder members');
+    return;
+  }
+  if (reorderMode) return;
   closeRowMenu();
   closeOpenDropdown();
   reorderMode = true;
@@ -1040,6 +1235,10 @@ function completeTransferOwnership() {
 }
 
 function resendInvite(id) {
+  if (!canEditTeam()) {
+    promptUpgrade('Upgrade your plan to resend invites');
+    return;
+  }
   const m = state.members.find(x => x.id === id);
   if (!m) return;
   showToast(`Invite resent to ${m.email}`);
@@ -1220,7 +1419,10 @@ document.getElementById('members-list').addEventListener('pointerdown', onDragPo
 /* ---------- Permissions modal ---------- */
 
 function openPermissions(id) {
-  if (!canManageMembers()) return;
+  if (!canEditTeam()) {
+    promptUpgrade('Upgrade your plan to edit permissions');
+    return;
+  }
   const m = state.members.find(x => x.id === id);
   if (!m || m.role === 'owner' || m.status === 'pending') return;
   pendingPermissionsId = id;
@@ -1240,6 +1442,79 @@ function openPermissions(id) {
   });
 
   openOverlay('permissions-overlay');
+}
+
+let pendingInfoId = null;
+
+function openEditInfo(id) {
+  if (!canManageMembers()) return;
+  const m = state.members.find(x => x.id === id);
+  if (!m) return;
+  pendingInfoId = id;
+  document.getElementById('info-member-label').textContent = m.name;
+  document.getElementById('info-name').value = m.name.replace(/\s*\(you\)\s*/i, '').trim();
+  document.getElementById('info-email').value = m.email;
+  document.getElementById('info-position').value = m.position || '';
+  document.getElementById('info-error').hidden = true;
+  openOverlay('info-overlay');
+  document.getElementById('info-name').focus();
+}
+
+function saveMemberInfo() {
+  const m = state.members.find(x => x.id === pendingInfoId);
+  const errorEl = document.getElementById('info-error');
+  if (!m) {
+    closeOverlay('info-overlay');
+    pendingInfoId = null;
+    return;
+  }
+
+  const name = document.getElementById('info-name').value.trim();
+  const email = document.getElementById('info-email').value.trim();
+  const position = document.getElementById('info-position').value.trim();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!name) {
+    errorEl.textContent = 'Enter a name.';
+    errorEl.hidden = false;
+    document.getElementById('info-name').focus();
+    return;
+  }
+  if (!email) {
+    errorEl.textContent = 'Enter an email address.';
+    errorEl.hidden = false;
+    document.getElementById('info-email').focus();
+    return;
+  }
+  if (!emailPattern.test(email)) {
+    errorEl.textContent = 'Enter a valid email address.';
+    errorEl.hidden = false;
+    document.getElementById('info-email').focus();
+    return;
+  }
+  const emailTaken = state.members.some(
+    x => x.id !== m.id && x.email.toLowerCase() === email.toLowerCase()
+  );
+  if (emailTaken) {
+    errorEl.textContent = 'This email is already part of the workspace.';
+    errorEl.hidden = false;
+    document.getElementById('info-email').focus();
+    return;
+  }
+  if (!position) {
+    errorEl.textContent = 'Enter a position title.';
+    errorEl.hidden = false;
+    document.getElementById('info-position').focus();
+    return;
+  }
+
+  m.name = name;
+  m.email = email;
+  m.position = position;
+  closeOverlay('info-overlay');
+  pendingInfoId = null;
+  renderMembers();
+  showToast(`${shortName(m.name)}'s information updated`);
 }
 
 document.getElementById('permissions-list').addEventListener('change', (e) => {
@@ -1269,10 +1544,31 @@ document.getElementById('welcome-join-continue').addEventListener('click', () =>
   showToast('Welcome to the workspace');
 });
 
+document.getElementById('info-cancel')?.addEventListener('click', () => {
+  closeOverlay('info-overlay');
+  pendingInfoId = null;
+});
+document.getElementById('info-save')?.addEventListener('click', saveMemberInfo);
+['info-name', 'info-email', 'info-position'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => {
+    const err = document.getElementById('info-error');
+    if (err) err.hidden = true;
+  });
+  document.getElementById(id)?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveMemberInfo();
+    }
+  });
+});
+
 /* ---------- Invite ---------- */
 
 function openInviteModal() {
-  if (!canManageMembers()) return;
+  if (!canEditTeam()) {
+    promptUpgrade('Upgrade your plan to invite teammates');
+    return;
+  }
   document.getElementById('invite-email').value = '';
   inviteRoleDropdown.setValue('member');
   document.getElementById('invite-error').hidden = true;
@@ -1316,6 +1612,7 @@ function closeAllOverlays() {
   pendingDeactivateId = null;
   pendingCancelInviteId = null;
   pendingPermissionsId = null;
+  pendingInfoId = null;
   pendingPlanId = null;
   pendingTransferId = null;
   pendingInvoiceId = null;
@@ -1361,6 +1658,7 @@ function sendInvite() {
     id: nextId++,
     name: email,
     email,
+    position: '',
     role,
     status: 'pending',
     order: state.members.length,
@@ -1419,68 +1717,126 @@ function renderBilling() {
   const plan = currentPlan();
   const used = seatsUsed();
   const canceling = state.billing.status === 'canceling';
+  const free = isFreePlan();
   const manageBilling = canManageBilling();
   const isOther = viewAs === 'other';
+  const hasCard = hasPaymentMethod();
 
   // Other: plan summary lives under General
   if (isOther) {
     document.getElementById('plan-details-name').textContent = plan.name;
     document.getElementById('plan-details-seats').textContent = `${used} of ${plan.seats} seats used`;
     const detailsBadge = document.getElementById('plan-details-badge');
-    detailsBadge.textContent = canceling ? 'Canceling' : 'Active';
+    detailsBadge.textContent = free ? 'Free' : canceling ? 'Canceling' : 'Active';
     detailsBadge.classList.toggle('plan-badge--canceling', canceling);
+    detailsBadge.classList.toggle('plan-badge--free', free);
     return;
   }
 
   const badge = document.getElementById('plan-badge');
   const billLabel = document.getElementById('plan-bill-label');
   const cancelNote = document.getElementById('plan-cancel-note');
+  const freeNote = document.getElementById('plan-free-note');
   const cancelBtn = document.getElementById('cancel-plan-btn');
   const keepBtn = document.getElementById('keep-plan-btn');
+  const endBillingBtn = document.getElementById('end-billing-btn');
+  const changePlanBtn = document.getElementById('change-plan-btn');
+  const changePlanLabel = document.getElementById('change-plan-label');
   const billingSub = document.getElementById('billing-panel-sub');
+  const paymentBlock = document.getElementById('payment-block');
+  const managePaymentBtn = document.getElementById('manage-payment-btn');
 
   document.getElementById('plan-card').hidden = false;
+  document.getElementById('plan-card').classList.toggle('plan-card--free', free);
 
   document.getElementById('plan-name').textContent = plan.name;
   document.getElementById('plan-name-icon').innerHTML = iconSvg(plan.id);
-  document.getElementById('plan-price').textContent = canceling
-    ? `$${plan.price}/mo · Cancels ${state.billing.nextBillingDate}`
-    : `$${plan.price}/mo · Billed monthly`;
-  document.getElementById('plan-seats').textContent = `${used} of ${plan.seats} seats used`;
 
-  if (canceling) {
+  if (free) {
+    document.getElementById('plan-price').textContent = 'Limited access · Upgrade anytime';
+  } else if (canceling) {
+    document.getElementById('plan-price').textContent =
+      `$${plan.price}/mo · Cancels ${state.billing.nextBillingDate}`;
+  } else {
+    document.getElementById('plan-price').textContent = `$${plan.price}/mo · Billed monthly`;
+  }
+
+  const seatsEl = document.getElementById('plan-seats');
+  seatsEl.textContent = `${used} of ${plan.seats} seats used`;
+  seatsEl.classList.toggle('plan-seats--over', used > plan.seats);
+
+  badge.classList.remove('plan-badge--canceling', 'plan-badge--free');
+  badge.removeAttribute('data-tooltip');
+
+  if (free) {
+    badge.textContent = 'Free';
+    badge.classList.add('plan-badge--free');
+    billLabel.textContent = 'Billing';
+    document.getElementById('plan-next-bill').textContent = 'No active subscription';
+    cancelNote.hidden = true;
+    freeNote.hidden = false;
+    cancelBtn.hidden = true;
+    keepBtn.hidden = true;
+    endBillingBtn.hidden = true;
+  } else if (canceling) {
     badge.textContent = 'Canceling';
-    badge.removeAttribute('data-tooltip');
     badge.classList.add('plan-badge--canceling');
     billLabel.textContent = 'Access until';
     document.getElementById('plan-next-bill').textContent = state.billing.nextBillingDate;
     cancelNote.hidden = false;
+    freeNote.hidden = true;
     cancelBtn.hidden = true;
     keepBtn.hidden = !manageBilling;
+    endBillingBtn.hidden = !manageBilling;
+    const noteText = document.getElementById('plan-cancel-note-text');
+    if (noteText) {
+      noteText.textContent = hasCard
+        ? `Your plan is set to cancel. Full access lasts until ${state.billing.nextBillingDate}. Remove your payment method to end access now — or use the button below (demo).`
+        : `Your plan is set to cancel and there's no card on file. End billing to move to Free.`;
+    }
   } else {
     badge.textContent = 'Active';
-    badge.removeAttribute('data-tooltip');
-    badge.classList.remove('plan-badge--canceling');
     billLabel.textContent = 'Next billing date';
     document.getElementById('plan-next-bill').textContent = state.billing.nextBillingDate;
     cancelNote.hidden = true;
+    freeNote.hidden = true;
     cancelBtn.hidden = !manageBilling;
     keepBtn.hidden = true;
+    endBillingBtn.hidden = true;
   }
 
-  document.getElementById('change-plan-btn').hidden = !manageBilling;
-  const managePaymentBtn = document.getElementById('manage-payment-btn');
-  if (managePaymentBtn) managePaymentBtn.hidden = !manageBilling;
+  if (changePlanBtn) {
+    changePlanBtn.hidden = !manageBilling;
+    if (changePlanLabel) {
+      changePlanLabel.textContent = free ? 'Choose a plan' : 'Change plan';
+    }
+  }
+
+  if (managePaymentBtn) {
+    managePaymentBtn.hidden = !manageBilling;
+    managePaymentBtn.innerHTML = hasCard
+      ? `${iconSvg('card')}<span>Payment</span>`
+      : `${iconSvg('card')}<span>Add card</span>`;
+  }
+
   if (!manageBilling) {
     cancelBtn.hidden = true;
     keepBtn.hidden = true;
+    endBillingBtn.hidden = true;
   }
 
+  if (paymentBlock) {
+    paymentBlock.classList.toggle('payment-block--empty', !hasCard);
+  }
   const pm = state.billing.paymentMethod;
-  document.getElementById('plan-payment').textContent = `${pm.brand} ending in ${pm.last4}`;
+  document.getElementById('plan-payment').textContent = hasCard
+    ? `${pm.brand} ending in ${pm.last4}`
+    : 'No payment method on file';
 
   if (billingSub) {
-    billingSub.textContent = 'Manage your plan, seats, and payment method.';
+    billingSub.textContent = free
+      ? 'Free plan is limited. Choose a paid plan to unlock the workspace.'
+      : 'Manage your plan, seats, and payment method.';
   }
 
   renderBillingHistoryPreview();
@@ -1626,6 +1982,9 @@ function ensureEndOfCycleInvoice() {
   if (getDueInvoice()) return;
   const plan = currentPlan();
   const pm = state.billing.paymentMethod;
+  const paymentLabel = pm?.brand && pm?.last4
+    ? `${pm.brand} ···· ${pm.last4}`
+    : 'No card on file';
   state.billing.invoices.unshift({
     id: `inv-due-${Date.now()}`,
     number: 'INV-DUE',
@@ -1635,7 +1994,7 @@ function ensureEndOfCycleInvoice() {
     amount: plan.price,
     tax: 0,
     status: 'Due',
-    payment: `${pm.brand} ···· ${pm.last4}`
+    payment: paymentLabel
   });
 }
 
@@ -1649,13 +2008,29 @@ function openPaymentModal(options = {}) {
   paymentFromInvoice = fromInvoice;
   resetPaymentForm();
 
+  const hasCard = hasPaymentMethod();
   const pm = state.billing.paymentMethod;
   const due = getDueInvoice();
-  document.getElementById('payment-current-value').textContent = `${pm.brand} ending in ${pm.last4}`;
-
+  const lead = document.getElementById('payment-lead');
+  const currentLabel = document.getElementById('payment-current-label');
+  const currentValue = document.getElementById('payment-current-value');
+  const removeBtn = document.getElementById('payment-remove-btn');
+  const formHeading = document.getElementById('payment-form-heading');
   const dueNote = document.getElementById('payment-due-note');
   const payBtn = document.getElementById('payment-pay');
   const submitBtn = document.getElementById('payment-submit');
+
+  if (lead) {
+    lead.textContent = hasCard
+      ? 'View your card, update it, remove it, or pay when a bill is due.'
+      : 'Add a card to pay invoices and subscribe to a paid plan.';
+  }
+  if (currentLabel) currentLabel.textContent = hasCard ? 'Current card' : 'Payment method';
+  currentValue.textContent = hasCard
+    ? `${pm.brand} ending in ${pm.last4}`
+    : 'No card on file';
+  if (removeBtn) removeBtn.hidden = !hasCard;
+  if (formHeading) formHeading.textContent = hasCard ? 'Update card' : 'Add card';
 
   if (due) {
     dueNote.classList.add('payment-due-note--due');
@@ -1663,6 +2038,11 @@ function openPaymentModal(options = {}) {
     payBtn.hidden = false;
     payBtn.innerHTML = `Pay ${formatMoney(due.amount + due.tax)}`;
     paymentIntent = preferPay || fromInvoice ? 'pay' : 'save';
+  } else if (isFreePlan()) {
+    dueNote.classList.remove('payment-due-note--due');
+    dueNote.innerHTML = 'No payment due on the Free plan. Add a card before choosing a paid plan.';
+    payBtn.hidden = true;
+    paymentIntent = 'save';
   } else {
     dueNote.classList.remove('payment-due-note--due');
     dueNote.innerHTML = `No payment due. Your next charge is on <strong>${escapeHtml(state.billing.nextBillingDate)}</strong>.`;
@@ -1670,7 +2050,7 @@ function openPaymentModal(options = {}) {
     paymentIntent = 'save';
   }
 
-  submitBtn.textContent = 'Save card';
+  submitBtn.textContent = hasCard ? 'Save card' : 'Add card';
   const emphasizePay = Boolean(due) && (preferPay || fromInvoice);
   submitBtn.classList.toggle('btn--primary', !emphasizePay);
   payBtn.classList.toggle('btn--primary', emphasizePay);
@@ -1678,6 +2058,46 @@ function openPaymentModal(options = {}) {
   if (fromInvoice) closeOverlay('invoice-overlay');
   openOverlay('payment-overlay');
   document.getElementById('pay-name').focus();
+}
+
+function openRemovePaymentModal() {
+  if (!canManageBilling() || !hasPaymentMethod()) return;
+  const due = getDueInvoice();
+  const canceling = state.billing.status === 'canceling';
+  const body = document.getElementById('remove-payment-body');
+  if (body) {
+    if (canceling) {
+      body.textContent =
+        'Your plan is already set to cancel. Removing the card ends paid access now and moves this workspace to the Free plan.';
+    } else if (due) {
+      body.textContent =
+        `You still have ${due.number} due. Removing your card means you can't pay until you add a new one.`;
+    } else {
+      body.textContent =
+        'Your card will be removed from this workspace. You won\'t be charged until you add a new card.';
+    }
+  }
+  openOverlay('remove-payment-overlay');
+}
+
+function confirmRemovePayment() {
+  if (!hasPaymentMethod()) {
+    closeOverlay('remove-payment-overlay');
+    return;
+  }
+  const wasCanceling = state.billing.status === 'canceling';
+  state.billing.paymentMethod = null;
+  closeOverlay('remove-payment-overlay');
+  closeOverlay('payment-overlay');
+
+  // Canceling + no card → access ends immediately (Free)
+  if (wasCanceling) {
+    endBillingPeriod({ toast: 'Card removed · paid access ended · you\'re on Free' });
+    return;
+  }
+
+  showToast('Payment method removed');
+  renderBilling();
 }
 
 function validatePaymentForm() {
@@ -1722,9 +2142,12 @@ function validatePaymentForm() {
 function savePaymentCard() {
   const card = validatePaymentForm();
   if (!card) return;
+  const wasEmpty = !hasPaymentMethod();
   state.billing.paymentMethod = { brand: card.brand, last4: card.last4 };
   closeOverlay('payment-overlay');
-  showToast(`Card updated · ${card.brand} ending in ${card.last4}`);
+  showToast(wasEmpty
+    ? `Card added · ${card.brand} ending in ${card.last4}`
+    : `Card updated · ${card.brand} ending in ${card.last4}`);
   renderBilling();
 }
 
@@ -1736,8 +2159,8 @@ function payDueInvoice() {
   }
 
   const numberRaw = document.getElementById('pay-number').value.replace(/\s/g, '');
-  let brand = state.billing.paymentMethod.brand;
-  let last4 = state.billing.paymentMethod.last4;
+  let brand = state.billing.paymentMethod?.brand;
+  let last4 = state.billing.paymentMethod?.last4;
 
   // If the form is filled, use/update the card; otherwise charge the saved card
   if (numberRaw || document.getElementById('pay-name').value.trim()) {
@@ -1746,6 +2169,14 @@ function payDueInvoice() {
     brand = card.brand;
     last4 = card.last4;
     state.billing.paymentMethod = { brand, last4 };
+  }
+
+  if (!brand || !last4) {
+    const errorEl = document.getElementById('payment-error');
+    errorEl.textContent = 'Add a card before paying this invoice.';
+    errorEl.hidden = false;
+    document.getElementById('pay-name').focus();
+    return;
   }
 
   due.status = 'Paid';
@@ -1760,8 +2191,9 @@ function payDueInvoice() {
 function renderPlanTiers() {
   const wrap = document.getElementById('plan-tiers');
   wrap.innerHTML = '';
-  Object.values(PLANS).forEach(plan => {
-    const isCurrent = plan.id === state.billing.planId;
+  const paidPlans = Object.values(PLANS).filter(plan => plan.id !== 'free');
+  paidPlans.forEach(plan => {
+    const isCurrent = plan.id === state.billing.planId && !isFreePlan();
     const card = document.createElement('div');
     card.className = 'plan-tier' + (isCurrent ? ' plan-tier--current' : '');
     card.innerHTML = `
@@ -1794,7 +2226,8 @@ function openChangePlan() {
 
 function requestPlanSwitch(planId) {
   const target = PLANS[planId];
-  if (!target || target.id === state.billing.planId) return;
+  if (!target || target.id === 'free') return;
+  if (target.id === state.billing.planId && !isFreePlan()) return;
 
   document.getElementById('plan-switch-error').hidden = true;
   const used = seatsUsed();
@@ -1806,16 +2239,35 @@ function requestPlanSwitch(planId) {
     return;
   }
 
+  if (!hasPaymentMethod()) {
+    document.getElementById('plan-switch-error').textContent =
+      'Add a payment method before switching to a paid plan.';
+    document.getElementById('plan-switch-error').hidden = false;
+    return;
+  }
+
   pendingPlanId = planId;
+  const nextBill = state.billing.nextBillingDate && state.billing.nextBillingDate !== '—'
+    ? state.billing.nextBillingDate
+    : 'October 12, 2026';
   document.getElementById('plan-confirm-name').textContent = target.name;
   document.getElementById('plan-confirm-body').textContent =
-    `You'll move to ${target.name} at $${target.price}/mo with ${target.seats} seats. Your next bill stays on ${state.billing.nextBillingDate}.`;
+    `You'll move to ${target.name} at $${target.price}/mo with ${target.seats} seats. Your next bill will be on ${nextBill}.`;
   openOverlay('plan-confirm-overlay');
 }
 
 function completePlanSwitch() {
   const target = PLANS[pendingPlanId];
-  if (!target) return;
+  if (!target || target.id === 'free') return;
+
+  if (!hasPaymentMethod()) {
+    closeOverlay('plan-confirm-overlay');
+    const err = document.getElementById('plan-switch-error');
+    err.textContent = 'Add a payment method before switching to a paid plan.';
+    err.hidden = false;
+    pendingPlanId = null;
+    return;
+  }
 
   const simulateDecline = document.getElementById('simulate-decline').checked;
   const randomDecline = !simulateDecline && Math.random() < 0.2;
@@ -1831,28 +2283,47 @@ function completePlanSwitch() {
 
   state.billing.planId = target.id;
   state.billing.status = 'active';
+  if (!state.billing.nextBillingDate || state.billing.nextBillingDate === '—') {
+    state.billing.nextBillingDate = 'October 12, 2026';
+  }
   closeOverlay('plan-confirm-overlay');
   closeOverlay('change-plan-overlay');
   pendingPlanId = null;
   renderBilling();
+  renderMembers();
   showToast(`Switched to ${target.name} plan`);
 }
 
 function openCancelPlan() {
   if (!canManageBilling()) return;
-  if (state.billing.status === 'canceling') return;
+  if (state.billing.status === 'canceling' || isFreePlan()) return;
   const plan = currentPlan();
-  document.getElementById('cancel-plan-name').textContent = plan.name;
-  document.getElementById('cancel-plan-date').textContent = state.billing.nextBillingDate;
+  const body = document.getElementById('cancel-plan-body');
+  if (!hasPaymentMethod()) {
+    body.innerHTML =
+      `There's no payment method on file. Canceling <strong>${escapeHtml(plan.name)}</strong> ends paid access now and moves you to the Free plan.`;
+  } else {
+    body.innerHTML =
+      `You'll keep access to <strong>${escapeHtml(plan.name)}</strong> until
+      <strong>${escapeHtml(state.billing.nextBillingDate)}</strong>. After that, billing stops and paid features turn off.
+      Remove your payment method anytime to end access immediately.`;
+  }
   openOverlay('cancel-plan-overlay');
 }
 
 function confirmCancelPlan() {
+  closeOverlay('cancel-plan-overlay');
+
+  // No card → skip grace period, go straight to Free
+  if (!hasPaymentMethod()) {
+    endBillingPeriod({ toast: 'Plan canceled · no card on file · you\'re on Free' });
+    return;
+  }
+
   state.billing.status = 'canceling';
   ensureEndOfCycleInvoice();
-  closeOverlay('cancel-plan-overlay');
   renderBilling();
-  showToast(`Plan canceled · final payment due by ${state.billing.nextBillingDate}`);
+  showToast(`Plan canceled · access until ${state.billing.nextBillingDate}`);
 }
 
 function keepPlan() {
@@ -1860,6 +2331,23 @@ function keepPlan() {
   clearDueInvoices();
   renderBilling();
   showToast('Your plan will renew as usual');
+}
+
+function endBillingPeriod(options = {}) {
+  if (!canManageBilling()) return;
+  if (state.billing.status === 'free' && state.billing.planId === 'free') return;
+
+  clearDueInvoices();
+  state.billing.status = 'free';
+  state.billing.planId = 'free';
+  state.billing.nextBillingDate = '—';
+  if (reorderMode) {
+    reorderMode = false;
+    document.body.classList.remove('is-reordering');
+  }
+  renderBilling();
+  renderMembers();
+  showToast(options.toast || 'Paid access ended · you\'re on the Free plan');
 }
 
 document.getElementById('change-plan-btn').addEventListener('click', openChangePlan);
@@ -1873,6 +2361,7 @@ document.getElementById('cancel-plan-dismiss').addEventListener('click', () => {
 });
 document.getElementById('cancel-plan-confirm').addEventListener('click', confirmCancelPlan);
 document.getElementById('keep-plan-btn').addEventListener('click', keepPlan);
+document.getElementById('end-billing-btn').addEventListener('click', () => endBillingPeriod());
 document.getElementById('plan-tiers').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-plan-id]');
   if (!btn || btn.disabled) return;
@@ -1893,6 +2382,11 @@ document.getElementById('plan-block-ok').addEventListener('click', () => {
 document.getElementById('manage-payment-btn').addEventListener('click', () => {
   openPaymentModal();
 });
+document.getElementById('payment-remove-btn').addEventListener('click', openRemovePaymentModal);
+document.getElementById('remove-payment-cancel').addEventListener('click', () => {
+  closeOverlay('remove-payment-overlay');
+});
+document.getElementById('remove-payment-confirm').addEventListener('click', confirmRemovePayment);
 document.getElementById('payment-cancel').addEventListener('click', () => {
   const fromInvoice = paymentFromInvoice;
   const id = pendingInvoiceId;
@@ -1967,6 +2461,9 @@ document.getElementById('members-list').addEventListener('click', (e) => {
       break;
     case 'permissions':
       openPermissions(id);
+      break;
+    case 'edit-info':
+      openEditInfo(id);
       break;
     case 'deactivate':
       confirmDeactivate(id);
@@ -2060,13 +2557,39 @@ document.getElementById('general-save').addEventListener('click', () => {
   showToast('Workspace settings saved');
 });
 
+document.getElementById('workspace-logo-upload')?.addEventListener('click', () => {
+  document.getElementById('workspace-logo-file')?.click();
+});
+
+document.getElementById('workspace-logo-file')?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const badge = document.getElementById('workspace-logo-badge');
+  const filenameEl = document.getElementById('workspace-logo-filename');
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (!badge) return;
+    badge.innerHTML = `<img class="workspace-logo-badge__img" src="${reader.result}" alt="">`;
+    badge.classList.add('workspace-logo-badge--image');
+    if (filenameEl) filenameEl.textContent = file.name;
+    showToast('Workspace logo updated');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
 function workspaceSlug() {
   return document.getElementById('workspace-url').value.trim().toLowerCase();
 }
 
+function workspaceHost() {
+  const slug = workspaceSlug() || 'goswag';
+  return `${slug}.tandem.money`;
+}
+
 function openDeleteWorkspace() {
   if (viewAs !== 'owner') return;
-  const slug = workspaceSlug() || 'studio-co';
+  const slug = workspaceSlug() || 'goswag';
   const name = document.getElementById('workspace-name').value.trim() || 'this workspace';
   document.getElementById('delete-workspace-name').textContent = name;
   document.getElementById('delete-workspace-slug-hint').textContent = slug;
@@ -2080,7 +2603,7 @@ function openDeleteWorkspace() {
 }
 
 function syncDeleteWorkspaceConfirm() {
-  const slug = workspaceSlug() || 'studio-co';
+  const slug = workspaceSlug() || 'goswag';
   const typed = document.getElementById('delete-workspace-slug').value.trim();
   const matches = typed === slug;
   document.getElementById('delete-workspace-confirm').disabled = !matches;
@@ -2088,7 +2611,7 @@ function syncDeleteWorkspaceConfirm() {
 }
 
 function confirmDeleteWorkspace() {
-  const slug = workspaceSlug() || 'studio-co';
+  const slug = workspaceSlug() || 'goswag';
   const name = document.getElementById('workspace-name').value.trim() || slug;
   const typed = document.getElementById('delete-workspace-slug').value.trim();
   const errorEl = document.getElementById('delete-workspace-error');
@@ -2110,7 +2633,7 @@ function beginWorkspaceDeletion(name, slug) {
   const deleted = document.getElementById('workspace-gone-deleted');
 
   document.getElementById('workspace-gone-deleting-sub').textContent =
-    `Removing ${name} · tandem.app/${slug}`;
+    `Removing ${name} · ${slug}.tandem.money`;
   document.getElementById('workspace-gone-sub').textContent =
     `“${slug}” has been removed. You can bring it back if this was a mistake.`;
 
@@ -2171,13 +2694,25 @@ document.querySelectorAll('.overlay').forEach(ov => {
     modal.prepend(closeBtn);
   }
 
+  ov.addEventListener('pointerdown', (e) => {
+    ov.dataset.backdropDown = e.target === ov ? '1' : '0';
+  });
+
   ov.addEventListener('click', (e) => {
-    if (e.target !== ov && !e.target.closest('.modal__close')) return;
+    const closeBtn = e.target.closest('.modal__close');
+    const backdropClick = e.target === ov && ov.dataset.backdropDown === '1';
+    if (!closeBtn && !backdropClick) return;
+    // Don't dismiss when a text-selection drag ends on the scrim
+    if (!closeBtn) {
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed) return;
+    }
     closeOverlay(ov.id);
     pendingRemoveId = null;
     pendingDeactivateId = null;
     pendingCancelInviteId = null;
     pendingPermissionsId = null;
+    pendingInfoId = null;
     pendingTransferId = null;
     if (ov.id === 'plan-confirm-overlay') pendingPlanId = null;
   });
@@ -2263,6 +2798,7 @@ function initTooltips() {
 
   let active = null;
   let hideTimer = 0;
+  let suppressEl = null;
 
   function hide() {
     active = null;
@@ -2299,6 +2835,7 @@ function initTooltips() {
   function show(el) {
     const text = el.getAttribute('data-tooltip');
     if (!text || el.closest('[inert], [aria-hidden="true"]')) return;
+    if (suppressEl && (el === suppressEl || suppressEl.contains(el))) return;
     window.clearTimeout(hideTimer);
     active = el;
     tip.textContent = text;
@@ -2313,7 +2850,11 @@ function initTooltips() {
 
   document.addEventListener('pointerout', (e) => {
     const el = e.target.closest('[data-tooltip]');
-    if (!el || el !== active) return;
+    if (!el) return;
+    if (suppressEl && (el === suppressEl || suppressEl.contains(el))) {
+      if (!e.relatedTarget || !el.contains(e.relatedTarget)) suppressEl = null;
+    }
+    if (el !== active) return;
     if (e.relatedTarget && el.contains(e.relatedTarget)) return;
     hideTimer = window.setTimeout(hide, 60);
   });
@@ -2334,7 +2875,14 @@ function initTooltips() {
     if (e.key === 'Escape' && active) hide();
   });
 
-  document.addEventListener('pointerdown', () => {
+  // Click/press dismisses; don't let focus bring the tip straight back
+  document.addEventListener('pointerdown', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) suppressEl = el;
+    if (active) hide();
+  }, true);
+
+  document.addEventListener('click', () => {
     if (active) hide();
   }, true);
 

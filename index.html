@@ -94,13 +94,13 @@
     <header class="content-header">
       <h1 class="page-title"><span data-icon="workspace" aria-hidden="true"></span>Workspace settings</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Settings sections">
-        <button class="tab" role="tab" aria-selected="false" data-tab="general" id="tab-btn-general"><span data-icon="general" aria-hidden="true"></span>General</button>
-        <button class="tab tab--active" role="tab" aria-selected="true" data-tab="members" id="tab-btn-members"><span data-icon="members" aria-hidden="true"></span>Members</button>
+        <button class="tab tab--active" role="tab" aria-selected="true" data-tab="general" id="tab-btn-general"><span data-icon="general" aria-hidden="true"></span>General</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="members" id="tab-btn-members"><span data-icon="members" aria-hidden="true"></span>Members</button>
         <button class="tab" role="tab" aria-selected="false" data-tab="billing" id="tab-btn-billing"><span data-icon="billing" aria-hidden="true"></span>Plan &amp; billing</button>
       </nav>
     </header>
 
-    <section id="tab-general" class="panel" role="tabpanel" aria-labelledby="tab-btn-general" hidden>
+    <section id="tab-general" class="panel" role="tabpanel" aria-labelledby="tab-btn-general">
       <div class="panel-header">
         <div>
           <h2>General</h2>
@@ -109,16 +109,36 @@
       </div>
 
       <div class="settings-stack">
-        <label class="field-label" for="workspace-name">Workspace name</label>
-        <input type="text" id="workspace-name" value="Studio Co" maxlength="60">
-
-        <label class="field-label" for="workspace-url">Workspace URL</label>
-        <div class="input-prefix">
-          <span class="input-prefix__affix">tandem.app/</span>
-          <input type="text" id="workspace-url" value="studio-co" maxlength="40" spellcheck="false">
+        <div class="settings-field">
+          <span class="field-label" id="workspace-logo-label">Workspace logo</span>
+          <div class="workspace-logo-row" role="group" aria-labelledby="workspace-logo-label">
+            <div class="workspace-logo-badge workspace-logo-badge--image" id="workspace-logo-badge" aria-hidden="true">
+              <img class="workspace-logo-badge__img" src="/goswag/Goswag-logo.png" alt="" width="72" height="72" decoding="async" draggable="false">
+            </div>
+            <div class="workspace-logo-meta">
+              <p class="workspace-logo-meta__title" id="workspace-logo-filename">Goswag-logo.png</p>
+              <p class="workspace-logo-meta__sub">PNG, JPG, or SVG</p>
+              <button type="button" class="btn" id="workspace-logo-upload">
+                <span data-icon="upload" aria-hidden="true"></span>
+                Upload logo
+              </button>
+              <input type="file" id="workspace-logo-file" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden>
+            </div>
+          </div>
         </div>
 
-        <p class="hint">Changes here stay in this browser session only — not wired to a backend for this challenge.</p>
+        <div class="settings-field">
+          <label class="field-label" for="workspace-name">Workspace name</label>
+          <input type="text" id="workspace-name" value="Go Swag" maxlength="60">
+        </div>
+
+        <div class="settings-field">
+          <label class="field-label" for="workspace-url">Workspace URL</label>
+          <div class="input-prefix input-prefix--suffix">
+            <input type="text" id="workspace-url" value="goswag" maxlength="40" spellcheck="false">
+            <span class="input-prefix__affix">.tandem.money</span>
+          </div>
+        </div>
 
         <div class="form-actions">
           <button class="btn btn--primary" id="general-save" type="button">Save changes</button>
@@ -132,7 +152,7 @@
         <div class="plan-details" id="plan-details">
           <div class="plan-details__row">
             <span class="plan-details__label">Plan</span>
-            <span class="plan-details__value" id="plan-details-name">Studio</span>
+            <span class="plan-details__value" id="plan-details-name">Agency</span>
           </div>
           <div class="plan-details__row">
             <span class="plan-details__label">Status</span>
@@ -140,7 +160,7 @@
           </div>
           <div class="plan-details__row">
             <span class="plan-details__label">Seats</span>
-            <span class="plan-details__value" id="plan-details-seats">3 of 5 seats used</span>
+            <span class="plan-details__value" id="plan-details-seats">8 of 20 seats used</span>
           </div>
         </div>
       </div>
@@ -160,7 +180,7 @@
       </div>
     </section>
 
-    <section id="tab-members" class="panel" role="tabpanel" aria-labelledby="tab-btn-members">
+    <section id="tab-members" class="panel" role="tabpanel" aria-labelledby="tab-btn-members" hidden>
       <div class="panel-header">
         <div>
           <h2>Team members</h2>
@@ -193,8 +213,8 @@
         <div class="plan-card__top">
           <div>
             <p class="plan-card__label">Current plan</p>
-            <p class="plan-card__name" id="plan-name-wrap"><span id="plan-name-icon" class="icon-wrap" aria-hidden="true"></span><span id="plan-name">Studio</span></p>
-            <p class="plan-card__price" id="plan-price">$29/mo · Billed monthly</p>
+            <p class="plan-card__name" id="plan-name-wrap"><span id="plan-name-icon" class="icon-wrap" aria-hidden="true"></span><span id="plan-name">Agency</span></p>
+            <p class="plan-card__price" id="plan-price">$79/mo · Billed monthly</p>
           </div>
           <span class="plan-badge" id="plan-badge">Active</span>
         </div>
@@ -202,7 +222,7 @@
         <dl class="plan-meta">
           <div class="plan-meta__row">
             <dt>Seats</dt>
-            <dd id="plan-seats">3 of 5 seats used</dd>
+            <dd id="plan-seats">8 of 20 seats used</dd>
           </div>
           <div class="plan-meta__row" id="plan-bill-row">
             <dt id="plan-bill-label">Next billing date</dt>
@@ -227,11 +247,21 @@
         </div>
 
         <p class="plan-cancel-note" id="plan-cancel-note" hidden>
-          Your plan is set to cancel. You'll keep full access until the date above.
+          <span id="plan-cancel-note-text">
+            Your plan is set to cancel. You'll keep full access until the date above.
+          </span>
+          <button type="button" class="btn btn--primary plan-cancel-note__end" id="end-billing-btn" hidden data-tooltip="Demo: jump past the access-until date onto Free">
+            <span data-icon="ban" aria-hidden="true"></span>
+            End billing period
+          </button>
+        </p>
+
+        <p class="plan-free-note" id="plan-free-note" hidden>
+          You're on the Free plan. Invites, role changes, and paid features are locked until you upgrade.
         </p>
 
         <div class="plan-card__actions">
-          <button type="button" class="btn btn--primary" id="change-plan-btn"><span data-icon="swap" aria-hidden="true"></span>Change plan</button>
+          <button type="button" class="btn btn--primary" id="change-plan-btn"><span data-icon="swap" aria-hidden="true"></span><span id="change-plan-label">Change plan</span></button>
           <button type="button" class="btn btn--danger" id="cancel-plan-btn"><span data-icon="ban" aria-hidden="true"></span>Cancel plan</button>
           <button type="button" class="btn" id="keep-plan-btn" hidden><span data-icon="check" aria-hidden="true"></span>Keep plan</button>
         </div>
@@ -250,7 +280,7 @@
     <div class="workspace-gone__deleted" id="workspace-gone-deleted" hidden>
       <span class="workspace-gone__icon" data-icon="warning" aria-hidden="true"></span>
       <p class="workspace-gone__title">Workspace deleted</p>
-      <p class="workspace-gone__sub" id="workspace-gone-sub">“studio-co” has been removed. You can bring it back if this was a mistake.</p>
+      <p class="workspace-gone__sub" id="workspace-gone-sub">“goswag” has been removed. You can bring it back if this was a mistake.</p>
       <button type="button" class="btn btn--primary" id="restore-workspace-btn">
         <span data-icon="restore" aria-hidden="true"></span>
         Bring workspace back
@@ -265,7 +295,7 @@
     <p class="modal-lead">They'll get an email with a link to join this workspace.</p>
 
     <label class="field-label" for="invite-email">Email</label>
-    <input type="email" id="invite-email" placeholder="name@studio.co" autocomplete="off">
+    <input type="email" id="invite-email" placeholder="name@goswag.com" autocomplete="off">
     <p class="field-error" id="invite-error" hidden></p>
 
     <span class="field-label" id="invite-role-label">Role</span>
@@ -433,12 +463,16 @@
     <p class="modal-lead" id="payment-lead">View your card, update it, or pay when a bill is due at the end of your cycle.</p>
 
     <div class="payment-current" id="payment-current">
-      <p class="payment-current__label">Current card</p>
+      <p class="payment-current__label" id="payment-current-label">Current card</p>
       <p class="payment-current__value" id="payment-current-value">Visa ending in 4242</p>
+      <button type="button" class="btn btn--text-danger payment-remove-btn" id="payment-remove-btn">
+        <span data-icon="remove" aria-hidden="true"></span>
+        Remove payment method
+      </button>
     </div>
 
     <form class="payment-form" id="payment-form" autocomplete="off">
-      <p class="payment-form__heading">Update card</p>
+      <p class="payment-form__heading" id="payment-form-heading">Update card</p>
       <label class="field-label" for="pay-name">Name on card</label>
       <input type="text" id="pay-name" name="card-name" placeholder="Alex Rivera" maxlength="60">
 
@@ -468,12 +502,25 @@
   </div>
 </div>
 
+<div class="overlay" id="remove-payment-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="remove-payment-title">
+    <h2 id="remove-payment-title">Remove payment method?</h2>
+    <p class="modal-body" id="remove-payment-body">
+      Your card will be removed from this workspace. You won't be charged until you add a new card.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" id="remove-payment-cancel" type="button">Keep card</button>
+      <button class="btn btn--danger" id="remove-payment-confirm" type="button"><span data-icon="remove" aria-hidden="true"></span>Remove card</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="delete-workspace-overlay" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-workspace-title">
     <h2 id="delete-workspace-title">Delete workspace?</h2>
-    <p class="modal-lead">This permanently deletes <strong id="delete-workspace-name">Studio Co</strong> and all of its data. Type the workspace slug to confirm.</p>
+    <p class="modal-lead">This permanently deletes <strong id="delete-workspace-name">Go Swag</strong> and all of its data. Type the workspace slug to confirm.</p>
 
-    <label class="field-label" for="delete-workspace-slug">Type <code id="delete-workspace-slug-hint" class="slug-hint">studio-co</code> to confirm</label>
+    <label class="field-label" for="delete-workspace-slug">Type <code id="delete-workspace-slug-hint" class="slug-hint">goswag</code> to confirm</label>
     <input type="text" id="delete-workspace-slug" autocomplete="off" spellcheck="false" placeholder="workspace-slug">
     <p class="field-error" id="delete-workspace-error" hidden></p>
 
@@ -486,16 +533,37 @@
 
 <div class="overlay" id="welcome-join-overlay" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="welcome-join-title">
-    <h2 id="welcome-join-title">Welcome to Studio Co</h2>
-    <p class="modal-lead">
+    <h2 id="welcome-join-title">Welcome to Go Swag</h2>
+    <p class="modal-lead" id="welcome-join-lead">
       You joined this workspace from the invite link sent to your email.
-      You're here as a <strong>Member</strong> — same view someone sees right after accepting an invite.
     </p>
     <p class="modal-body" id="welcome-join-note">
-      Casey L. just accepted their invite too and is now active on the team.
+      Rebecca Cooper is now active on the team.
     </p>
     <div class="modal-actions">
       <button class="btn btn--primary" id="welcome-join-continue" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="info-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="info-title">
+    <h2 id="info-title">Information</h2>
+    <p class="modal-lead">Update name, email, and position for <strong id="info-member-label"></strong>.</p>
+
+    <label class="field-label" for="info-name">Name</label>
+    <input type="text" id="info-name" maxlength="80" placeholder="Full name" autocomplete="off">
+
+    <label class="field-label" for="info-email">Email</label>
+    <input type="email" id="info-email" maxlength="120" placeholder="name@goswag.com" autocomplete="off">
+
+    <label class="field-label" for="info-position">Position</label>
+    <input type="text" id="info-position" maxlength="80" placeholder="e.g. Head of Growth" autocomplete="off">
+
+    <p class="field-error" id="info-error" hidden></p>
+    <div class="modal-actions">
+      <button class="btn" id="info-cancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="info-save" type="button">Save</button>
     </div>
   </div>
 </div>
