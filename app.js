@@ -1,3 +1,5 @@
+import { renderIcon } from './icons.js';
+
 const PERMISSION_DEFS = [
   { key: 'invite', label: 'Can invite new members', toast: 'invite new members' },
   { key: 'manageBilling', label: 'Can manage plan & billing', toast: 'manage billing' },
@@ -1089,7 +1091,7 @@ function flipAnimate(beforeRects) {
     row.style.transition = 'none';
     row.style.transform = `translateY(${dy}px)`;
     row.getBoundingClientRect();
-    row.style.transition = 'transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+    row.style.transition = 'transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)';
     row.style.transform = '';
     const clear = () => {
       row.style.transition = '';
@@ -1275,62 +1277,37 @@ function openInviteModal() {
   document.getElementById('invite-email').focus();
 }
 
-const OVERLAY_MS = 280;
-
-function forceHideOverlay(ov) {
-  if (!ov) return;
-  clearTimeout(ov._overlayCloseTimer);
-  ov._overlayCloseTimer = null;
-  ov.classList.remove('overlay--open', 'overlay--closing');
-  ov.hidden = true;
-}
+const OVERLAY_MS = 170;
 
 function openOverlay(id) {
   closeOpenDropdown();
   closeRowMenu();
-  const el = document.getElementById(id);
-  if (!el) return;
-  clearTimeout(el._overlayCloseTimer);
-  el._overlayCloseTimer = null;
-  el.classList.remove('overlay--closing', 'overlay--open');
-  el.hidden = false;
+  const ov = document.getElementById(id);
+  if (!ov) return;
+  ov.classList.remove('overlay--closing');
+  ov.hidden = false;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      if (!el.hidden) el.classList.add('overlay--open');
+      ov.classList.add('overlay--open');
     });
   });
 }
 
 function closeOverlay(id) {
-  const el = document.getElementById(id);
-  if (!el || el.hidden) return;
-
-  const finish = () => {
-    clearTimeout(el._overlayCloseTimer);
-    el._overlayCloseTimer = null;
-    el.classList.remove('overlay--open', 'overlay--closing');
-    el.hidden = true;
-  };
-
-  if (!el.classList.contains('overlay--open')) {
-    finish();
-    return;
-  }
-
-  el.classList.remove('overlay--open');
-  el.classList.add('overlay--closing');
-  clearTimeout(el._overlayCloseTimer);
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el._overlayCloseTimer = setTimeout(finish, reduced ? 0 : OVERLAY_MS);
+  const ov = document.getElementById(id);
+  if (!ov || ov.hidden || ov.classList.contains('overlay--closing')) return;
+  ov.classList.add('overlay--closing');
+  ov.classList.remove('overlay--open');
+  window.setTimeout(() => {
+    ov.hidden = true;
+    ov.classList.remove('overlay--closing');
+  }, OVERLAY_MS);
 }
 
-function closeAllOverlays({ immediate = true } = {}) {
+function closeAllOverlays() {
   closeOpenDropdown();
   closeRowMenu();
-  document.querySelectorAll('.overlay').forEach(ov => {
-    if (immediate) forceHideOverlay(ov);
-    else closeOverlay(ov.id);
-  });
+  document.querySelectorAll('.overlay:not([hidden])').forEach(ov => closeOverlay(ov.id));
   pendingRemoveId = null;
   pendingDeactivateId = null;
   pendingCancelInviteId = null;
@@ -2211,11 +2188,6 @@ document.addEventListener('keydown', (e) => {
   }
   if (reorderMode) {
     exitReorderMode();
-    return;
-  }
-  const openPopups = [...document.querySelectorAll('.overlay:not([hidden])')];
-  if (openPopups.length) {
-    closeAllOverlays({ immediate: false });
     return;
   }
   closeAllOverlays();

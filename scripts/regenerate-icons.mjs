@@ -32,7 +32,7 @@ const output = `/* Auto-generated from /icons — do not edit by hand.
 const ICONS = {
 ${body}};
 
-function renderIcon(name, className = '') {
+export function renderIcon(name, className = '') {
   const classes = ['icon', className].filter(Boolean).join(' ');
   return \`<span class="\${classes}">\${ICONS[name] || ''}</span>\`;
 }
