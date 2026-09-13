@@ -1,0 +1,47 @@
+---
+description: Phosphor Bold icon workflow — copy into /icons, regenerate icons.js, inline SVG only
+alwaysApply: true
+---
+
+# Phosphor Icons Workflow (this project)
+
+## Paths
+
+- **Source library (read-only pool):** `D:\PROJECTS\ACTIVE WORK\GoSwag\DOCUMENTS\EMPLOYMENT\CHALLANGE\03_BUILD\A_WEBAPP\ASSETS\ICONS\phosphor-icons\SVGs\bold`
+- **Project icons (canonical in-use set):** `icons/` in the project root
+- **Embedded registry:** `icons.js` in the project root (always mirrors `icons/` exactly)
+
+Never modify, move, or delete files in the source library. Only copy from it into `icons/`.
+
+## Commands from the user
+
+### "use" / "add" an icon
+
+1. Find the matching `*-bold.svg` in the source library (e.g. trash → `trash-bold.svg`).
+2. **Copy** it into `icons/` (exact filename). Do not move or edit the source.
+3. Run `node scripts/regenerate-icons.mjs` so `icons.js` embeds the SVG markup.
+4. Wire the UI with `renderIcon('trash-bold', 'icon-…')` (key = filename without `.svg`).
+5. Apply a matching animation class from `styles.css` (see below). If none fit, say so and propose a new class — do not force a mismatch.
+
+### "swap" / "change" an icon
+
+1. Pick an alternative from the source library (or ask which filename if several fit).
+2. Copy the new SVG into `icons/`.
+3. Delete the old unused SVG from `icons/` only (never from the source library).
+4. Regenerate `icons.js`.
+5. Update `renderIcon()` call sites to the new key and animation class if needed.
+
+## Hard rules
+
+- Never fetch icons at runtime; never use `<img src="">` for these icons.
+- Inline real SVG markup via `icons.js` so paths can be CSS-animated.
+- `icons.js` must reflect **only** what is currently in project `icons/` — nothing unused from the library.
+- App code maps semantic names → Phosphor keys via `APP_ICONS` in `app.js`, then calls `renderIcon()` (through `iconSvg()` helper).
+- Prefer swapping via the "use"/"swap" workflow rather than inventing paths.
+
+## Animation classes (meaning-specific)
+
+Animations live on `.icon--{meaning}` in `styles.css` (form-related hover motion — not a generic float).
+Examples: gear spins, coins jingle, bank columns rise, trash lid tips, caret flips when expanded, list lines shuffle.
+
+If a newly wired icon does not clearly fit an existing motion, tell the user and define a new `.icon--*` animation together.

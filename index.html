@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem — Workspace settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img
+        class="brand-logo"
+        src="/BLACK_FULLLOGO_TANDEM.svg"
+        alt="Tandem"
+        width="120"
+        height="20"
+        decoding="async"
+        draggable="false"
+      >
+    </div>
+
+    <nav class="main-nav" aria-label="Primary">
+      <span class="nav-item"><span data-icon="dashboard" aria-hidden="true"></span>Dashboard</span>
+      <span class="nav-item"><span data-icon="invoices" aria-hidden="true"></span>Invoices</span>
+      <span class="nav-item"><span data-icon="tax" aria-hidden="true"></span>Tax</span>
+      <span class="nav-item nav-item--active" aria-current="page"><span data-icon="settings" aria-hidden="true"></span>Settings</span>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p class="sidebar-note">Dashboard, invoices, and tax are placeholders for this challenge. The built part is Settings.</p>
+      <div class="view-as" role="group" aria-label="Preview settings as role">
+        <p class="view-as-note" id="view-as-note" hidden></p>
+        <span class="view-as__label">Preview as</span>
+        <div class="view-as__seg">
+          <button type="button" class="view-as__btn view-as__btn--active" data-view-as="owner">Owner</button>
+          <button type="button" class="view-as__btn" data-view-as="admin">Admin</button>
+          <button type="button" class="view-as__btn" data-view-as="other">Other</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="content-header">
+      <h1 class="page-title"><span data-icon="workspace" aria-hidden="true"></span>Workspace settings</h1>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Settings sections">
+        <button class="tab" role="tab" aria-selected="false" data-tab="general" id="tab-btn-general"><span data-icon="general" aria-hidden="true"></span>General</button>
+        <button class="tab tab--active" role="tab" aria-selected="true" data-tab="members" id="tab-btn-members"><span data-icon="members" aria-hidden="true"></span>Members</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="billing" id="tab-btn-billing"><span data-icon="billing" aria-hidden="true"></span>Plan &amp; billing</button>
+      </nav>
+    </header>
+
+    <section id="tab-general" class="panel" role="tabpanel" aria-labelledby="tab-btn-general" hidden>
+      <div class="panel-header">
+        <div>
+          <h2>General</h2>
+          <p class="panel-sub">Workspace identity used across invoices and invites.</p>
+        </div>
+      </div>
+
+      <div class="settings-stack">
+        <label class="field-label" for="workspace-name">Workspace name</label>
+        <input type="text" id="workspace-name" value="Studio Co" maxlength="60">
+
+        <label class="field-label" for="workspace-url">Workspace URL</label>
+        <div class="input-prefix">
+          <span class="input-prefix__affix">tandem.app/</span>
+          <input type="text" id="workspace-url" value="studio-co" maxlength="40" spellcheck="false">
+        </div>
+
+        <p class="hint">Changes here stay in this browser session only — not wired to a backend for this challenge.</p>
+
+        <div class="form-actions">
+          <button class="btn btn--primary" id="general-save" type="button">Save changes</button>
+        </div>
+      </div>
+
+      <!-- Shown for Other (Member / Viewer) inside General -->
+      <div class="plan-details-block" id="plan-details-block" hidden>
+        <h3 class="plan-details-block__title">Plan Details</h3>
+        <p class="plan-details-block__sub">Workspace plan overview for your role.</p>
+        <div class="plan-details" id="plan-details">
+          <div class="plan-details__row">
+            <span class="plan-details__label">Plan</span>
+            <span class="plan-details__value" id="plan-details-name">Studio</span>
+          </div>
+          <div class="plan-details__row">
+            <span class="plan-details__label">Status</span>
+            <span class="plan-details__value"><span class="plan-badge" id="plan-details-badge">Active</span></span>
+          </div>
+          <div class="plan-details__row">
+            <span class="plan-details__label">Seats</span>
+            <span class="plan-details__value" id="plan-details-seats">3 of 5 seats used</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="danger-zone" id="danger-zone">
+        <div class="danger-zone__head">
+          <h3 class="danger-zone__title"><span data-icon="warning" aria-hidden="true"></span>Danger zone</h3>
+          <p class="danger-zone__sub">Irreversible actions for this workspace.</p>
+        </div>
+        <div class="danger-zone__row">
+          <div class="danger-zone__copy">
+            <p class="danger-zone__action-title">Delete this workspace</p>
+            <p class="danger-zone__action-desc">Permanently remove members, invoices, billing, and settings. This can’t be undone.</p>
+          </div>
+          <button type="button" class="btn btn--danger" id="delete-workspace-btn"><span data-icon="remove" aria-hidden="true"></span>Delete workspace</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-members" class="panel" role="tabpanel" aria-labelledby="tab-btn-members">
+      <div class="panel-header">
+        <div>
+          <h2>Team members</h2>
+          <p class="panel-sub" id="members-count"></p>
+        </div>
+        <div class="panel-header__actions">
+          <div class="header-actions-set" id="header-actions-default">
+            <button class="btn" id="reorder-btn" type="button"><span data-icon="reorder" aria-hidden="true"></span>Reorder</button>
+            <button class="btn btn--primary" id="invite-btn" type="button"><span data-icon="invite" aria-hidden="true"></span>Invite</button>
+          </div>
+          <div class="header-actions-set header-actions-set--out" id="header-actions-reorder" aria-hidden="true" inert>
+            <button class="btn" id="done-reorder-btn" type="button"><span data-icon="check" aria-hidden="true"></span>Done reordering</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="members-list" id="members-list"></div>
+    </section>
+
+    <section id="tab-billing" class="panel" role="tabpanel" aria-labelledby="tab-btn-billing" hidden>
+      <div class="panel-header">
+        <div>
+          <h2 id="billing-panel-title">Plan &amp; billing</h2>
+          <p class="panel-sub" id="billing-panel-sub">Manage your plan, seats, and payment method.</p>
+        </div>
+      </div>
+
+      <!-- Full billing for Owner / Admin -->
+      <div class="plan-card" id="plan-card">
+        <div class="plan-card__top">
+          <div>
+            <p class="plan-card__label">Current plan</p>
+            <p class="plan-card__name" id="plan-name-wrap"><span id="plan-name-icon" class="icon-wrap" aria-hidden="true"></span><span id="plan-name">Studio</span></p>
+            <p class="plan-card__price" id="plan-price">$29/mo · Billed monthly</p>
+          </div>
+          <span class="plan-badge" id="plan-badge">Active</span>
+        </div>
+
+        <dl class="plan-meta">
+          <div class="plan-meta__row">
+            <dt>Seats</dt>
+            <dd id="plan-seats">3 of 5 seats used</dd>
+          </div>
+          <div class="plan-meta__row" id="plan-bill-row">
+            <dt id="plan-bill-label">Next billing date</dt>
+            <dd id="plan-next-bill">October 12, 2026</dd>
+          </div>
+        </dl>
+
+        <div class="payment-block" id="payment-block">
+          <div class="payment-block__info">
+            <p class="payment-block__label">Payment method</p>
+            <p class="payment-block__value" id="plan-payment">Visa ending in 4242</p>
+          </div>
+          <button type="button" class="btn" id="manage-payment-btn"><span data-icon="card" aria-hidden="true"></span>Payment</button>
+        </div>
+
+        <div class="billing-history" id="billing-history">
+          <div class="billing-history__head">
+            <p class="billing-history__label">Invoices &amp; billing history</p>
+            <button type="button" class="btn--text" id="view-billing-history-btn">View all</button>
+          </div>
+          <ul class="billing-history__list" id="billing-history-list"></ul>
+        </div>
+
+        <p class="plan-cancel-note" id="plan-cancel-note" hidden>
+          Your plan is set to cancel. You'll keep full access until the date above.
+        </p>
+
+        <div class="plan-card__actions">
+          <button type="button" class="btn btn--primary" id="change-plan-btn"><span data-icon="swap" aria-hidden="true"></span>Change plan</button>
+          <button type="button" class="btn btn--danger" id="cancel-plan-btn"><span data-icon="ban" aria-hidden="true"></span>Cancel plan</button>
+          <button type="button" class="btn" id="keep-plan-btn" hidden><span data-icon="check" aria-hidden="true"></span>Keep plan</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="workspace-gone" id="workspace-gone" hidden>
+  <div class="workspace-gone__card" id="workspace-gone-card">
+    <div class="workspace-gone__deleting" id="workspace-gone-deleting" hidden>
+      <span class="workspace-gone__spinner" aria-hidden="true"></span>
+      <p class="workspace-gone__title">Deleting workspace…</p>
+      <p class="workspace-gone__sub" id="workspace-gone-deleting-sub">Removing members, invoices, and settings.</p>
+    </div>
+    <div class="workspace-gone__deleted" id="workspace-gone-deleted" hidden>
+      <span class="workspace-gone__icon" data-icon="warning" aria-hidden="true"></span>
+      <p class="workspace-gone__title">Workspace deleted</p>
+      <p class="workspace-gone__sub" id="workspace-gone-sub">“studio-co” has been removed. You can bring it back if this was a mistake.</p>
+      <button type="button" class="btn btn--primary" id="restore-workspace-btn">
+        <span data-icon="restore" aria-hidden="true"></span>
+        Bring workspace back
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="invite-overlay" hidden>
+  <div class="modal modal--invite" role="dialog" aria-modal="true" aria-labelledby="invite-title">
+    <h2 id="invite-title">Invite a teammate</h2>
+    <p class="modal-lead">They'll get an email with a link to join this workspace.</p>
+
+    <label class="field-label" for="invite-email">Email</label>
+    <input type="email" id="invite-email" placeholder="name@studio.co" autocomplete="off">
+    <p class="field-error" id="invite-error" hidden></p>
+
+    <span class="field-label" id="invite-role-label">Role</span>
+    <div id="invite-role"></div>
+
+    <div class="modal-actions">
+      <button class="btn" id="invite-cancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="invite-send" type="button"><span data-icon="invite" aria-hidden="true"></span>Send invite</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="remove-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="remove-title">
+    <h2 id="remove-title">Remove <span id="remove-name"></span>?</h2>
+    <p class="modal-body">They'll lose access immediately. This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" id="remove-cancel" type="button">Cancel</button>
+      <button class="btn btn--danger" id="remove-confirm" type="button">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="deactivate-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="deactivate-title">
+    <h2 id="deactivate-title">Deactivate <span id="deactivate-name"></span>?</h2>
+    <p class="modal-body">They'll lose access until you activate them again. Their role and permissions stay saved.</p>
+    <div class="modal-actions">
+      <button class="btn" id="deactivate-cancel" type="button">Cancel</button>
+      <button class="btn btn--danger" id="deactivate-confirm" type="button">Deactivate</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="transfer-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
+    <h2 id="transfer-title">Transfer ownership</h2>
+    <p class="modal-lead">Choose an active teammate to become the new workspace owner. You'll become an admin.</p>
+
+    <span class="field-label" id="transfer-member-label">New owner</span>
+    <div id="transfer-member"></div>
+    <p class="field-error" id="transfer-error" hidden></p>
+
+    <div class="modal-actions">
+      <button class="btn" id="transfer-cancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="transfer-confirm" type="button">Transfer ownership</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="transfer-confirm-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="transfer-confirm-title">
+    <h2 id="transfer-confirm-title">Transfer to <span id="transfer-confirm-name"></span>?</h2>
+    <p class="modal-body">This can't be undone from here. You'll lose owner privileges and become an admin.</p>
+    <div class="modal-actions">
+      <button class="btn" id="transfer-confirm-cancel" type="button">Cancel</button>
+      <button class="btn btn--danger" id="transfer-confirm-ok" type="button">Confirm transfer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cancel-invite-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="cancel-invite-title">
+    <h2 id="cancel-invite-title">Cancel invite?</h2>
+    <p class="modal-body">The invite to <span id="cancel-invite-email"></span> will stop working.</p>
+    <div class="modal-actions">
+      <button class="btn" id="cancel-invite-dismiss" type="button">Keep invite</button>
+      <button class="btn btn--danger" id="cancel-invite-confirm" type="button">Cancel invite</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="permissions-overlay" hidden>
+  <div class="modal modal--permissions modal--scroll" role="dialog" aria-modal="true" aria-labelledby="permissions-title">
+    <h2 id="permissions-title">Permissions for <span id="permissions-name"></span></h2>
+    <p class="modal-lead">Toggle what this person can do. Changing these won't rename their role.</p>
+    <div class="perm-list" id="permissions-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn--primary" id="permissions-done" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="change-plan-overlay" hidden>
+  <div class="modal modal--wide modal--scroll" role="dialog" aria-modal="true" aria-labelledby="change-plan-title">
+    <h2 id="change-plan-title">Change plan</h2>
+    <p class="modal-lead">Pick a plan that fits your team size. Seat limits apply to everyone in the workspace, including pending invites.</p>
+    <p class="field-error" id="plan-switch-error" hidden></p>
+    <div class="plan-tiers" id="plan-tiers"></div>
+    <label class="simulate-decline">
+      <input type="checkbox" id="simulate-decline">
+      Simulate card decline (test)
+    </label>
+    <div class="modal-actions">
+      <button class="btn" id="change-plan-close" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="plan-confirm-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="plan-confirm-title">
+    <h2 id="plan-confirm-title">Switch to <span id="plan-confirm-name"></span>?</h2>
+    <p class="modal-body" id="plan-confirm-body"></p>
+    <div class="modal-actions">
+      <button class="btn" id="plan-confirm-cancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="plan-confirm-ok" type="button">Confirm switch</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="plan-block-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="plan-block-title">
+    <h2 id="plan-block-title">Can't switch yet</h2>
+    <p class="modal-body" id="plan-block-body"></p>
+    <div class="modal-actions">
+      <button class="btn btn--primary" id="plan-block-ok" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cancel-plan-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="cancel-plan-title">
+    <h2 id="cancel-plan-title">Cancel your plan?</h2>
+    <p class="modal-body" id="cancel-plan-body">
+      You'll keep access to <strong id="cancel-plan-name">Studio</strong> until
+      <strong id="cancel-plan-date">October 12, 2026</strong>. After that, billing stops and paid features turn off.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" id="cancel-plan-dismiss" type="button">Keep plan</button>
+      <button class="btn btn--danger" id="cancel-plan-confirm" type="button">Cancel plan</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="billing-history-overlay" hidden>
+  <div class="modal modal--wide modal--scroll" role="dialog" aria-modal="true" aria-labelledby="billing-history-title">
+    <h2 id="billing-history-title">Billing history</h2>
+    <p class="modal-lead">Paid invoices for this workspace. Open one for the full breakdown, or export everything at once.</p>
+    <ul class="invoice-history-list" id="invoice-history-list"></ul>
+    <div class="modal-actions">
+      <button class="btn" id="billing-history-close" type="button">Close</button>
+      <button class="btn btn--primary" id="billing-history-export-all" type="button"><span data-icon="export" aria-hidden="true"></span>Export all</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="invoice-overlay" hidden>
+  <div class="modal modal--invoice modal--scroll" role="dialog" aria-modal="true" aria-labelledby="invoice-title">
+    <h2 id="invoice-title">Invoice</h2>
+    <p class="modal-lead" id="invoice-lead"></p>
+
+    <div class="invoice-sheet" id="invoice-sheet"></div>
+
+    <div class="modal-actions">
+      <button class="btn" id="invoice-back" type="button" hidden>Back to history</button>
+      <button class="btn btn--primary" id="invoice-pay" type="button" hidden><span data-icon="card" aria-hidden="true"></span>Pay invoice</button>
+      <button class="btn btn--primary" id="invoice-export" type="button"><span data-icon="export" aria-hidden="true"></span>Export</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="payment-overlay" hidden>
+  <div class="modal modal--scroll" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+    <h2 id="payment-title">Payment</h2>
+    <p class="modal-lead" id="payment-lead">View your card, update it, or pay when a bill is due at the end of your cycle.</p>
+
+    <div class="payment-current" id="payment-current">
+      <p class="payment-current__label">Current card</p>
+      <p class="payment-current__value" id="payment-current-value">Visa ending in 4242</p>
+    </div>
+
+    <form class="payment-form" id="payment-form" autocomplete="off">
+      <p class="payment-form__heading">Update card</p>
+      <label class="field-label" for="pay-name">Name on card</label>
+      <input type="text" id="pay-name" name="card-name" placeholder="Alex Rivera" maxlength="60">
+
+      <label class="field-label" for="pay-number">Card number</label>
+      <input type="text" id="pay-number" name="card-number" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
+
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="pay-expiry">Expiry</label>
+          <input type="text" id="pay-expiry" name="card-expiry" inputmode="numeric" placeholder="MM/YY" maxlength="5">
+        </div>
+        <div>
+          <label class="field-label" for="pay-cvc">CVC</label>
+          <input type="text" id="pay-cvc" name="card-cvc" inputmode="numeric" placeholder="123" maxlength="4">
+        </div>
+      </div>
+      <p class="field-error" id="payment-error" hidden></p>
+    </form>
+
+    <p class="payment-due-note" id="payment-due-note">No payment due. Your next charge is on <span id="payment-next-date">October 12, 2026</span>.</p>
+
+    <div class="modal-actions">
+      <button class="btn" id="payment-cancel" type="button">Cancel</button>
+      <button class="btn" id="payment-pay" type="button" hidden><span data-icon="card" aria-hidden="true"></span>Pay now</button>
+      <button class="btn btn--primary" id="payment-submit" type="button"><span data-icon="card" aria-hidden="true"></span>Save card</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="delete-workspace-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-workspace-title">
+    <h2 id="delete-workspace-title">Delete workspace?</h2>
+    <p class="modal-lead">This permanently deletes <strong id="delete-workspace-name">Studio Co</strong> and all of its data. Type the workspace slug to confirm.</p>
+
+    <label class="field-label" for="delete-workspace-slug">Type <code id="delete-workspace-slug-hint" class="slug-hint">studio-co</code> to confirm</label>
+    <input type="text" id="delete-workspace-slug" autocomplete="off" spellcheck="false" placeholder="workspace-slug">
+    <p class="field-error" id="delete-workspace-error" hidden></p>
+
+    <div class="modal-actions">
+      <button class="btn" id="delete-workspace-cancel" type="button">Cancel</button>
+      <button class="btn btn--danger" id="delete-workspace-confirm" type="button" disabled><span data-icon="remove" aria-hidden="true"></span>Delete workspace</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="welcome-join-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="welcome-join-title">
+    <h2 id="welcome-join-title">Welcome to Studio Co</h2>
+    <p class="modal-lead">
+      You joined this workspace from the invite link sent to your email.
+      You're here as a <strong>Member</strong> — same view someone sees right after accepting an invite.
+    </p>
+    <p class="modal-body" id="welcome-join-note">
+      Casey L. just accepted their invite too and is now active on the team.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn--primary" id="welcome-join-continue" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
