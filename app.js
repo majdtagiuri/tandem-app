@@ -592,7 +592,10 @@ function createDropdown({ options, value, className = '', ariaLabel = 'Select', 
     list.innerHTML = '';
     options.forEach((opt, index) => {
       const li = document.createElement('li');
-      li.className = 'dropdown__option';
+      const roleClass = ['admin', 'member', 'viewer', 'owner'].includes(opt.value)
+        ? ` dropdown__option--${opt.value}`
+        : '';
+      li.className = `dropdown__option${roleClass}`;
       li.setAttribute('role', 'option');
       li.dataset.value = opt.value;
       li.setAttribute('aria-selected', opt.value === current ? 'true' : 'false');
@@ -997,10 +1000,10 @@ function setReorderHeaderState(on) {
   const inviteBtn = document.getElementById('invite-btn');
   if (reorderBtn) {
     reorderBtn.disabled = false;
-    reorderBtn.setAttribute('data-tooltip', editTeam ? 'Reorder members' : 'Upgrade to reorder the team');
+    reorderBtn.removeAttribute('data-tooltip');
   }
   if (inviteBtn) {
-    inviteBtn.setAttribute('data-tooltip', editTeam ? 'Invite a teammate' : 'Upgrade to invite teammates');
+    inviteBtn.removeAttribute('data-tooltip');
   }
 }
 

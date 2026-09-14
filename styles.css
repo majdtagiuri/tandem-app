@@ -680,30 +680,40 @@ h2 {
   animation: iconPopIn 0.32s ease 0.14s both;
 }
 
-/* General — fader knobs slide more, staggered */
+/* General — fader knobs travel, staggered */
 .tab:hover .icon--general svg > line:nth-child(6) {
-  animation: iconSliderKnobA 0.7s ease;
+  animation: iconSliderKnobA 0.85s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .tab:hover .icon--general svg > line:nth-child(10) {
-  animation: iconSliderKnobB 0.7s ease 0.1s;
+  animation: iconSliderKnobB 0.85s cubic-bezier(0.33, 1, 0.68, 1) 0.08s;
 }
 .tab:hover .icon--general svg > line:nth-child(9) {
-  animation: iconSliderKnobC 0.7s ease 0.2s;
+  animation: iconSliderKnobC 0.85s cubic-bezier(0.33, 1, 0.68, 1) 0.16s;
+}
+/* Matching track ends slide with their knobs */
+.tab:hover .icon--general svg > line:nth-child(5) {
+  animation: iconSliderKnobA 0.85s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.tab:hover .icon--general svg > line:nth-child(3) {
+  animation: iconSliderKnobB 0.85s cubic-bezier(0.33, 1, 0.68, 1) 0.08s;
+}
+.tab:hover .icon--general svg > line:nth-child(8) {
+  animation: iconSliderKnobC 0.85s cubic-bezier(0.33, 1, 0.68, 1) 0.16s;
 }
 @keyframes iconSliderKnobA {
   0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-16px); }
-  70% { transform: translateY(10px); }
+  35% { transform: translateY(-32px); }
+  65% { transform: translateY(18px); }
 }
 @keyframes iconSliderKnobB {
   0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(14px); }
-  70% { transform: translateY(-12px); }
+  35% { transform: translateY(28px); }
+  65% { transform: translateY(-24px); }
 }
 @keyframes iconSliderKnobC {
   0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-14px); }
-  70% { transform: translateY(12px); }
+  35% { transform: translateY(-28px); }
+  65% { transform: translateY(24px); }
 }
 
 /* Permissions — horizontal slider knobs slide along their tracks */
@@ -867,43 +877,57 @@ h2 {
   80% { transform: rotate(4deg); }
 }
 
-/* Upload logo — arrow lifts, drops, lands; tray squashes on impact */
+/* Upload logo — arrow shoots up, then drops into the tray */
 .btn:hover .icon--upload svg > line:nth-child(2),
 .btn:hover .icon--upload svg > polyline:nth-child(4) {
-  animation: iconUploadArrow 0.75s cubic-bezier(0.33, 1, 0.68, 1);
+  transform-box: view-box;
+  transform-origin: 128px 88px;
+  animation: iconUploadArrow 0.95s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .btn:hover .icon--upload svg > polyline:nth-child(3) {
+  transform-box: view-box;
   transform-origin: 128px 208px;
-  animation: iconUploadTray 0.75s cubic-bezier(0.33, 1, 0.68, 1);
+  animation: iconUploadTray 0.95s cubic-bezier(0.33, 1, 0.68, 1);
 }
 @keyframes iconUploadArrow {
   0% { transform: translateY(0); }
-  38% { transform: translateY(-20px); }
-  68% { transform: translateY(3px); }
-  80% { transform: translateY(-4px); }
+  28% { transform: translateY(-64px); }
+  68% { transform: translateY(12px); }
+  84% { transform: translateY(-8px); }
   100% { transform: translateY(0); }
 }
 @keyframes iconUploadTray {
-  0%, 58% { transform: scaleY(1) translateY(0); }
-  68% { transform: scaleY(0.78) translateY(3px); }
-  80% { transform: scaleY(1.08) translateY(-1px); }
+  0%, 54% { transform: scaleY(1) translateY(0); }
+  68% { transform: scaleY(0.62) translateY(7px); }
+  84% { transform: scaleY(1.14) translateY(-3px); }
   100% { transform: scaleY(1) translateY(0); }
 }
 
-/* Export — same lift/land as upload (arrow out, tray absorbs the land) */
+/* Export — same clear up-then-down arrow motion */
 .btn:hover .icon--export svg > polyline:nth-child(3),
 .btn:hover .icon--export svg > line:nth-child(4) {
-  animation: iconUploadArrow 0.75s cubic-bezier(0.33, 1, 0.68, 1);
+  transform-box: view-box;
+  transform-origin: 128px 80px;
+  animation: iconUploadArrow 0.95s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .btn:hover .icon--export svg > path:nth-child(2) {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  animation: iconUploadTray 0.75s cubic-bezier(0.33, 1, 0.68, 1);
+  transform-box: view-box;
+  transform-origin: 128px 208px;
+  animation: iconUploadTray 0.95s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* Danger zone — warning badge wiggles when the zone is hovered */
-.danger-zone:hover .icon--warning {
-  animation: iconErrorWiggle 0.5s ease;
+/* Danger zone — warning badge just wiggles */
+.danger-zone:hover .icon--warning svg {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: iconDangerWiggle 0.55s ease;
+}
+@keyframes iconDangerWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(5deg); }
 }
 
 /* Change plan — bottom arrow → right, top arrow → left, re-enter opposite side */
@@ -1572,6 +1596,22 @@ body.is-reordering * {
   color: var(--ink-secondary);
 }
 
+.member-role .dropdown--role-admin .dropdown__trigger:hover,
+.member-role .dropdown--role-admin.dropdown--open .dropdown__trigger {
+  background: color-mix(in srgb, var(--terracotta) 22%, var(--surface));
+  color: var(--terracotta-text);
+}
+.member-role .dropdown--role-member .dropdown__trigger:hover,
+.member-role .dropdown--role-member.dropdown--open .dropdown__trigger {
+  background: color-mix(in srgb, var(--teal-soft) 28%, var(--surface));
+  color: var(--teal-text);
+}
+.member-role .dropdown--role-viewer .dropdown__trigger:hover,
+.member-role .dropdown--role-viewer.dropdown--open .dropdown__trigger {
+  background: color-mix(in srgb, var(--border-strong) 55%, var(--surface));
+  color: var(--ink-secondary);
+}
+
 .member-status {
   display: flex;
   align-items: center;
@@ -1877,20 +1917,84 @@ body.is-reordering * {
   font-size: 13px;
   cursor: pointer;
   border-bottom: 1px solid rgba(23, 20, 18, 0.12);
-  transition: background 0.12s ease;
+  color: var(--ink);
+  transition: background 0.12s ease, color 0.12s ease;
 }
 .dropdown__option:last-child { border-bottom: none; }
 .dropdown__option:hover,
 .dropdown__option--active {
   background: var(--paper);
 }
+
+/* Generic selected (non-role lists) */
 .dropdown__option[aria-selected="true"] {
-  font-weight: 500;
+  font-weight: 600;
   background: var(--blush-fill);
 }
 .dropdown__option[aria-selected="true"]:hover,
 .dropdown__option[aria-selected="true"].dropdown__option--active {
   background: var(--blush-soft);
+}
+
+/* Role options — hover tint + selected fill match each role */
+.dropdown__option--admin:hover,
+.dropdown__option--admin.dropdown__option--active {
+  background: color-mix(in srgb, var(--terracotta-fill) 72%, var(--surface));
+  color: var(--terracotta-text);
+}
+.dropdown__option--admin[aria-selected="true"] {
+  background: var(--terracotta-fill);
+  color: var(--terracotta-text);
+}
+.dropdown__option--admin[aria-selected="true"]:hover,
+.dropdown__option--admin[aria-selected="true"].dropdown__option--active {
+  background: color-mix(in srgb, var(--terracotta) 24%, var(--surface));
+  color: var(--terracotta-text);
+}
+
+.dropdown__option--member:hover,
+.dropdown__option--member.dropdown__option--active {
+  background: color-mix(in srgb, var(--teal-fill) 72%, var(--surface));
+  color: var(--teal-text);
+}
+.dropdown__option--member[aria-selected="true"] {
+  background: var(--teal-fill);
+  color: var(--teal-text);
+}
+.dropdown__option--member[aria-selected="true"]:hover,
+.dropdown__option--member[aria-selected="true"].dropdown__option--active {
+  background: color-mix(in srgb, var(--teal-soft) 30%, var(--surface));
+  color: var(--teal-text);
+}
+
+.dropdown__option--viewer:hover,
+.dropdown__option--viewer.dropdown__option--active {
+  background: color-mix(in srgb, var(--border) 55%, var(--surface));
+  color: var(--ink-secondary);
+}
+.dropdown__option--viewer[aria-selected="true"] {
+  background: color-mix(in srgb, var(--border) 70%, var(--surface));
+  color: var(--ink-secondary);
+}
+.dropdown__option--viewer[aria-selected="true"]:hover,
+.dropdown__option--viewer[aria-selected="true"].dropdown__option--active {
+  background: color-mix(in srgb, var(--border-strong) 60%, var(--surface));
+  color: var(--ink-secondary);
+}
+
+.dropdown__option--owner:hover,
+.dropdown__option--owner.dropdown__option--active {
+  background: color-mix(in srgb, var(--blush-fill) 72%, var(--surface));
+  color: var(--ink);
+}
+.dropdown__option--owner[aria-selected="true"] {
+  background: var(--blush-fill);
+  color: var(--ink);
+}
+.dropdown__option--owner[aria-selected="true"]:hover,
+.dropdown__option--owner[aria-selected="true"].dropdown__option--active {
+  background: var(--blush-soft);
+  color: var(--ink);
 }
 
 .tag {
@@ -3311,7 +3415,7 @@ body.is-reordering * {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--chartreuse);
+  background: color-mix(in srgb, var(--chartreuse) 42%, var(--paper));
   color: var(--ink);
   font-size: 13px;
   font-weight: 700;
