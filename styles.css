@@ -114,7 +114,7 @@
   --fill-disabled: #D9CFC0;
 
   /* ===== FUNCTIONAL ===== */
-  --focus-ring: var(--red-bold);
+  --focus-ring: transparent;
   --overlay-scrim: rgba(23, 20, 18, 0.45);
   --shadow-hard: #171412;
 
@@ -122,7 +122,7 @@
   --radius: 2px;
   --elevation: 4px 4px 0 var(--shadow-hard);
   --elevation-sm: 2px 2px 0 var(--shadow-hard);
-  --focus: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 28%, transparent);
+  --focus: none;
 
   /* Soft fills for chips / callouts */
   --teal-fill: color-mix(in srgb, var(--teal-soft) 18%, var(--surface));
@@ -137,6 +137,26 @@
 }
 
 * { box-sizing: border-box; }
+
+/* No red / browser focus box on click, tap, or keyboard */
+*:focus,
+*:focus-visible {
+  outline: none;
+}
+button,
+a,
+.tab,
+.nav-item,
+.btn,
+.dropdown__trigger,
+.row-menu__trigger,
+.sidebar-toggle,
+.billing-history__row,
+.modal__close,
+.view-as__btn,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* Beat component display rules (.btn inline-flex, .overlay flex, etc.) */
 [hidden] { display: none !important; }
@@ -422,7 +442,7 @@ select,
 }
 .view-as__btn:last-child { border-right: none; }
 .view-as__btn:hover { background: var(--paper); color: var(--ink); }
-.view-as__btn:focus-visible { outline: none; box-shadow: inset var(--focus); }
+.view-as__btn:focus-visible { outline: none; box-shadow: none; }
 .view-as__btn--active {
   background: var(--ink);
   color: #fff;
@@ -1049,6 +1069,9 @@ h2 {
   gap: 4px;
   border-bottom: 2px solid var(--ink);
   /* Tabs rule is the top clip edge for panel scroll */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .tab {
   background: none;
@@ -1065,9 +1088,17 @@ h2 {
   align-items: center;
   gap: 8px;
   transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  box-shadow: none;
 }
 .tab:hover { color: var(--ink); }
-.tab:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--radius); }
+.tab:focus,
+.tab:focus-visible,
+.tab:active {
+  outline: none;
+  box-shadow: none;
+}
 .tab--active {
   color: var(--ink);
   border-bottom-color: var(--red);
@@ -1187,7 +1218,7 @@ h2 {
   transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
 }
 .btn:hover { background: var(--paper); }
-.btn:focus-visible { outline: none; box-shadow: var(--focus); }
+.btn:focus-visible { outline: none; box-shadow: none; }
 .btn:active {
   transform: translate(1px, 1px);
 }
@@ -1210,10 +1241,10 @@ h2 {
   filter: none;
 }
 .btn--primary:focus-visible {
-  box-shadow: var(--elevation), var(--focus);
+  box-shadow: var(--elevation);
 }
 .btn--primary:focus-visible:active {
-  box-shadow: var(--focus);
+  box-shadow: none;
 }
 
 .btn--danger {
@@ -1252,7 +1283,7 @@ h2 {
   height: 14px;
 }
 .btn--text:hover { background: var(--paper); text-decoration: underline; }
-.btn--text:focus-visible { outline: none; box-shadow: var(--focus); }
+.btn--text:focus-visible { outline: none; box-shadow: none; }
 .btn--text:active { transform: none; }
 .btn--text-danger { color: var(--terracotta-text); }
 .btn--text-danger:hover { background: var(--terracotta-fill); }
@@ -1760,7 +1791,7 @@ body.is-reordering * {
 .member-trailing .btn--perm:focus-visible,
 .row-actions .btn--perm:focus-visible {
   outline: none;
-  box-shadow: var(--elevation-sm), var(--focus);
+  box-shadow: var(--elevation-sm);
 }
 
 .btn--edit {
@@ -1784,7 +1815,7 @@ body.is-reordering * {
   flex-shrink: 0;
 }
 .btn--edit:hover { background: var(--paper); }
-.btn--edit:focus-visible { outline: none; box-shadow: var(--focus); }
+.btn--edit:focus-visible { outline: none; box-shadow: none; }
 .btn--edit:active { transform: translate(1px, 1px); }
 
 .btn--icon {
@@ -1809,7 +1840,7 @@ body.is-reordering * {
   background: var(--paper);
   border-color: var(--ink);
 }
-.btn--icon:focus-visible { outline: none; box-shadow: var(--focus); }
+.btn--icon:focus-visible { outline: none; box-shadow: none; }
 .row-actions .btn--icon-danger {
   color: var(--terracotta-text);
   background: var(--surface);
@@ -1864,7 +1895,7 @@ body.is-reordering * {
 .dropdown__trigger:hover { background: var(--paper); }
 .dropdown__trigger:focus-visible {
   outline: none;
-  box-shadow: var(--focus);
+  box-shadow: none;
 }
 .dropdown--open .dropdown__trigger { background: var(--paper); }
 
@@ -2059,7 +2090,7 @@ body.is-reordering * {
 }
 .row-menu__trigger:focus-visible {
   outline: none;
-  box-shadow: var(--focus);
+  box-shadow: none;
 }
 .row-menu__panel {
   position: absolute;
@@ -2723,7 +2754,7 @@ body.is-reordering * {
 }
 .billing-history__row:focus-visible {
   outline: none;
-  box-shadow: var(--focus);
+  box-shadow: none;
 }
 .billing-history__amount {
   font-variant-numeric: tabular-nums;
@@ -3385,7 +3416,7 @@ body.is-reordering * {
 }
 .modal__close:focus-visible {
   outline: none;
-  box-shadow: var(--focus);
+  box-shadow: none;
 }
 .modal-lead { margin: 0 0 8px; font-size: 13px; color: var(--ink-secondary); line-height: 1.5; }
 .modal-body { font-size: 13px; color: var(--ink-secondary); margin: 0 0 20px; line-height: 1.5; }
@@ -3613,7 +3644,7 @@ body.is-reordering * {
   }
   .sidebar-toggle:focus-visible {
     outline: none;
-    box-shadow: var(--focus);
+    box-shadow: none;
   }
   .sidebar-toggle__box {
     position: relative;

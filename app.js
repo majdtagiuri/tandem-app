@@ -2760,7 +2760,14 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  tab.addEventListener('click', () => {
+    switchTab(tab.dataset.tab);
+    tab.blur();
+  });
+  tab.addEventListener('mousedown', (e) => {
+    // Avoid sticky focus / drag-selection flash on the tab strip
+    if (e.detail > 0) e.preventDefault();
+  });
 });
 
 /* ---------- Mobile sidebar ---------- */
