@@ -408,7 +408,7 @@ select,
   min-height: 0;
   max-width: none;
   width: 100%;
-  padding: clamp(10px, 1.6vh, 24px) 0 0 var(--settings-gutter);
+  padding: clamp(22px, 3.2vh, 40px) 0 0 var(--settings-gutter);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1139,9 +1139,18 @@ h2 {
   width: 100%;
   box-sizing: border-box;
 }
-/* Don't compress panel sections on short screens ? scroll instead */
+/* Don't compress panel sections on short screens — scroll instead */
 .panel > *:not(.members-list) {
   flex-shrink: 0;
+}
+
+/* Members: keep the list container in-viewport; scroll inside only when rows can't fit */
+#tab-members.panel {
+  overflow: hidden;
+  padding-bottom: clamp(8px, 1.2vh, 16px);
+}
+#tab-members .panel-header {
+  margin-bottom: clamp(8px, 1.2vh, 14px);
 }
 
 /* Billing: denser chrome below the header; same tab→content gap as other panels */
@@ -1321,10 +1330,13 @@ h2 {
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--elevation-container);
-  overflow: visible;
-  /* Grow with rows; don't shrink — panel scrolls so the table isn't clipped */
-  flex: 1 0 auto;
-  min-height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Fill remaining panel height; scroll only when rows exceed available space */
+  flex: 1 1 auto;
+  min-height: 0;
   box-sizing: border-box;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
@@ -1342,7 +1354,7 @@ h2 {
   column-gap: 24px;
   row-gap: 12px;
   align-items: center;
-  padding: 12px 14px;
+  padding: clamp(8px, 1.35vh, 12px) 14px;
 }
 
 .members-header {
@@ -4170,7 +4182,7 @@ body.is-reordering * {
   .sidebar { padding: 16px 14px; }
   .sidebar .brand { margin-bottom: 16px; }
   .content-header { margin-bottom: 0; }
-  .content { padding-top: 8px; }
+  .content { padding-top: 18px; }
   .panel { padding-top: 12px; padding-bottom: 10px; }
   .panel-header { padding-top: 0; margin-bottom: 6px; }
   .nav-item { padding: 8px 10px; }
@@ -4180,6 +4192,8 @@ body.is-reordering * {
   .danger-zone__head { padding: 10px 14px 8px; }
   .danger-zone__row { padding: 10px 14px; }
   .workspace-logo-badge { width: 56px; height: 56px; }
+  .members-header,
+  .member-row { padding-top: 8px; padding-bottom: 8px; }
   #tab-billing .plan-card { padding: 8px 12px; }
   #tab-billing .plan-card__amount { font-size: 22px; }
   #tab-billing .plan-card__name { font-size: 18px; margin-top: 4px; }
