@@ -1087,8 +1087,11 @@ function renderMembers(options = {}) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           list.classList.add('members-list--reorder');
+          syncMembersScrollbar();
         });
       });
+    } else {
+      syncMembersScrollbar();
     }
     return;
   }
@@ -1100,9 +1103,101 @@ function renderMembers(options = {}) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         list.classList.add('members-list--reorder');
+        syncMembersScrollbar();
       });
     });
+  } else {
+    syncMembersScrollbar();
   }
+}
+
+function syncMembersScrollbar() {
+  const list = document.getElementById('members-list');
+  const shell = document.getElementById('members-list-shell');
+  const rail = document.getElementById('members-scrollbar');
+  const thumb = document.getElementById('members-scrollbar-thumb');
+  if (!list || !rail || !thumb) return;
+
+  const { scrollTop, scrollHeight, clientHeight } = list;
+  const overflow = scrollHeight > clientHeight + 1;
+  const trackJustOpened = overflow && rail.hidden;
+  rail.hidden = !overflow;
+  rail.setAttribute('aria-hidden', overflow ? 'false' : 'true');
+  shell?.classList.toggle('is-scrollable', overflow);
+  if (!overflow) return;
+
+  const updateThumb = () => {
+    const trackH = rail.clientHeight || 1;
+    const thumbH = Math.max(28, Math.round((clientHeight / scrollHeight) * trackH));
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = Math.max(1, scrollHeight - clientHeight);
+    const top = maxTop === 0 ? 0 : (scrollTop / maxScroll) * maxTop;
+    thumb.style.height = `${thumbH}px`;
+    thumb.style.transform = `translateY(${top}px)`;
+  };
+
+  if (trackJustOpened) requestAnimationFrame(updateThumb);
+  else updateThumb();
+}
+
+function bindMembersScrollbar() {
+  const list = document.getElementById('members-list');
+  const rail = document.getElementById('members-scrollbar');
+  const thumb = document.getElementById('members-scrollbar-thumb');
+  if (!list || !rail || !thumb || rail.dataset.bound === '1') {
+    syncMembersScrollbar();
+    return;
+  }
+  rail.dataset.bound = '1';
+
+  list.addEventListener('scroll', syncMembersScrollbar, { passive: true });
+  window.addEventListener('resize', syncMembersScrollbar);
+
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => syncMembersScrollbar());
+    ro.observe(list);
+  }
+
+  let dragging = false;
+  let startY = 0;
+  let startScroll = 0;
+
+  thumb.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    startY = e.clientY;
+    startScroll = list.scrollTop;
+    thumb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  thumb.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const { scrollHeight, clientHeight } = list;
+    const trackH = rail.clientHeight;
+    const thumbH = thumb.offsetHeight;
+    const maxTop = trackH - thumbH;
+    const maxScroll = scrollHeight - clientHeight;
+    if (maxTop <= 0 || maxScroll <= 0) return;
+    const delta = e.clientY - startY;
+    list.scrollTop = startScroll + (delta / maxTop) * maxScroll;
+  });
+
+  const endDrag = () => { dragging = false; };
+  thumb.addEventListener('pointerup', endDrag);
+  thumb.addEventListener('pointercancel', endDrag);
+
+  rail.addEventListener('pointerdown', (e) => {
+    if (e.target === thumb || thumb.contains(e.target)) return;
+    const rect = rail.getBoundingClientRect();
+    const thumbH = thumb.offsetHeight;
+    const y = e.clientY - rect.top - thumbH / 2;
+    const maxTop = Math.max(0, rail.clientHeight - thumbH);
+    const ratio = maxTop === 0 ? 0 : Math.min(1, Math.max(0, y / maxTop));
+    list.scrollTop = ratio * Math.max(0, list.scrollHeight - list.clientHeight);
+  });
+
+  syncMembersScrollbar();
 }
 
 function changeRole(id, role) {
@@ -1759,6 +1854,7 @@ function switchTab(key) {
     void next.offsetWidth;
     next.classList.add('panel--enter');
     if (key === 'billing') renderBilling();
+    if (key === 'members') requestAnimationFrame(() => syncMembersScrollbar());
   };
 
   if (current && !current.hidden) {
@@ -3004,6 +3100,7 @@ document.getElementById('invite-role-label').setAttribute('for', '');
 
 hydrateIcons();
 applyViewAs();
+bindMembersScrollbar();
 initTooltips();
 
 /* ---------- Tooltips ---------- */

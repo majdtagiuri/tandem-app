@@ -117,7 +117,6 @@
             </div>
             <div class="workspace-logo-meta">
               <p class="workspace-logo-meta__title" id="workspace-logo-filename">Goswag-logo.png</p>
-              <p class="workspace-logo-meta__sub">PNG, JPG, or SVG</p>
               <button type="button" class="btn" id="workspace-logo-upload">
                 <span data-icon="upload" aria-hidden="true"></span>
                 Upload logo
@@ -197,7 +196,12 @@
         </div>
       </div>
 
-      <div class="members-list" id="members-list"></div>
+      <div class="members-list-shell" id="members-list-shell">
+        <div class="members-list" id="members-list"></div>
+        <div class="members-scrollbar" id="members-scrollbar" hidden aria-hidden="true">
+          <div class="members-scrollbar__thumb" id="members-scrollbar-thumb"></div>
+        </div>
+      </div>
     </section>
 
     <section id="tab-billing" class="panel" role="tabpanel" aria-labelledby="tab-btn-billing" hidden>

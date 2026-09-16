@@ -193,7 +193,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   scrollbar-width: thin;
-  scrollbar-color: var(--ink-muted) var(--paper);
+  scrollbar-color: color-mix(in srgb, var(--ink) 40%, var(--paper)) var(--paper);
   /* Keep selection normal across empty space in the app */
   user-select: text;
   -webkit-user-select: text;
@@ -248,51 +248,10 @@ select,
   color: var(--red-bold);
 }
 
-/* App-wide scrollbar — no arrow buttons; thumb a bit more visible */
+/* App-wide scrollbar — standard props only (avoids Windows classic arrows) */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--ink-muted) var(--paper);
-}
-*::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-/* Force-hide scrollbar arrows (Windows Chromium keeps them otherwise) */
-*::-webkit-scrollbar-button,
-*::-webkit-scrollbar-button:single-button,
-*::-webkit-scrollbar-button:double-button,
-*::-webkit-scrollbar-button:vertical:start:decrement,
-*::-webkit-scrollbar-button:vertical:end:increment,
-*::-webkit-scrollbar-button:vertical:start:increment,
-*::-webkit-scrollbar-button:vertical:end:decrement,
-*::-webkit-scrollbar-button:horizontal:start:decrement,
-*::-webkit-scrollbar-button:horizontal:end:increment,
-*::-webkit-scrollbar-button:horizontal:start:increment,
-*::-webkit-scrollbar-button:horizontal:end:decrement {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  background: transparent !important;
-  border: none !important;
-}
-*::-webkit-scrollbar-track {
-  background: var(--paper);
-  border: 2px solid var(--ink);
-}
-*::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--ink) 42%, var(--border-strong));
-  border: 2px solid var(--ink);
-  border-radius: var(--radius);
-  min-height: 36px;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--ink-muted);
-}
-*::-webkit-scrollbar-corner {
-  background: var(--paper);
-  border: 2px solid var(--ink);
+  scrollbar-color: color-mix(in srgb, var(--ink) 40%, var(--paper)) var(--paper);
 }
 
 .app-shell {
@@ -1141,7 +1100,7 @@ h2 {
   box-sizing: border-box;
 }
 /* Don't compress panel sections on short screens — scroll instead */
-.panel > *:not(.members-list) {
+.panel > *:not(.members-list):not(.members-list-shell) {
   flex-shrink: 0;
 }
 
@@ -1332,63 +1291,83 @@ h2 {
 .btn--text-danger { color: var(--terracotta-text); box-shadow: none; }
 .btn--text-danger:hover { background: var(--terracotta-fill); }
 
-/* Members list */
-.members-list {
+/* Members list shell — custom square scrollbar with right track when needed */
+.members-list-shell {
+  position: relative;
   max-width: var(--settings-col);
   width: 100%;
   align-self: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--elevation-container);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.members-list {
+  max-width: none;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  border: none;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  /* Fill remaining panel height; scroll only when rows exceed available space */
-  flex: 1 1 auto;
-  min-height: 0;
   box-sizing: border-box;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  /* Simple custom scrollbar — paper track, plain rectangle thumb, no arrows */
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--ink) 32%, var(--paper)) var(--paper);
+  /* Hide native scrollbar — custom track + thumb on the right */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .members-list::-webkit-scrollbar {
-  width: 6px;
-}
-.members-list::-webkit-scrollbar-button,
-.members-list::-webkit-scrollbar-button:single-button,
-.members-list::-webkit-scrollbar-button:double-button,
-.members-list::-webkit-scrollbar-button:vertical:start:decrement,
-.members-list::-webkit-scrollbar-button:vertical:end:increment,
-.members-list::-webkit-scrollbar-button:vertical:start:increment,
-.members-list::-webkit-scrollbar-button:vertical:end:decrement {
-  display: none !important;
   width: 0 !important;
   height: 0 !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
+  display: none !important;
   background: transparent !important;
-  border: none !important;
 }
-.members-list::-webkit-scrollbar-track {
+.members-scrollbar {
+  position: relative;
+  flex: 0 0 10px;
+  width: 10px;
+  align-self: stretch;
   background: var(--paper);
-  border: none;
-  margin: 2px 0;
-}
-.members-list::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--ink) 32%, var(--paper));
-  border: none;
+  border-left: 2px solid var(--ink);
   border-radius: 0;
+  z-index: 4;
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+.members-scrollbar[hidden] {
+  display: none !important;
+}
+.members-scrollbar__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   min-height: 28px;
+  background: color-mix(in srgb, var(--ink) 40%, var(--paper));
+  border-radius: 0;
+  cursor: grab;
+  touch-action: none;
 }
-.members-list::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--ink) 48%, var(--paper));
+.members-scrollbar__thumb:hover {
+  background: color-mix(in srgb, var(--ink) 55%, var(--paper));
 }
-.members-list::-webkit-scrollbar-corner {
-  background: var(--paper);
-  border: none;
+.members-scrollbar__thumb:active {
+  cursor: grabbing;
+  background: color-mix(in srgb, var(--ink) 62%, var(--paper));
 }
 .members-list--fading {
   opacity: 0;
@@ -2420,7 +2399,7 @@ body.is-reordering * {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 8px;
 }
 .workspace-logo-meta__title {
   margin: 0;
@@ -2428,12 +2407,6 @@ body.is-reordering * {
   font-weight: 700;
   color: var(--ink);
   line-height: 1.3;
-}
-.workspace-logo-meta__sub {
-  margin: 0 0 clamp(6px, 1vh, 10px);
-  font-size: 12px;
-  color: var(--ink-muted);
-  line-height: 1.35;
 }
 .workspace-logo-meta .btn {
   padding: 7px 12px;
