@@ -109,6 +109,7 @@
   /* Settings column — tabs, members, and plan card share this right edge */
   --settings-col: 920px;
   --settings-gutter: clamp(16px, 4vw, 48px);
+  --settings-panel-bottom: 16px;
 
   /* ===== NEUTRAL SCALE ===== */
   --border: #EFE9DC;
@@ -1120,7 +1121,7 @@ h2 {
 }
 
 .panel {
-  padding: clamp(16px, 2.2vh, 28px) var(--settings-gutter) clamp(8px, 1.4vh, 20px) 0;
+  padding: clamp(28px, 3.8vh, 48px) var(--settings-gutter) var(--settings-panel-bottom, 16px) 0;
   margin-right: 0;
   flex: 1;
   min-height: 0;
@@ -1144,21 +1145,31 @@ h2 {
   flex-shrink: 0;
 }
 
-/* Members: keep the list container in-viewport; scroll inside only when rows can't fit */
+/* General: natural flow under Save changes */
+#tab-general.panel {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: var(--settings-panel-bottom);
+}
+#tab-general .danger-zone {
+  margin-top: clamp(40px, 6vh, 72px);
+}
+
+/* Members: list fills to the same bottom edge; scroll only when rows overflow */
 #tab-members.panel {
   overflow: hidden;
-  padding-bottom: clamp(8px, 1.2vh, 16px);
+  padding-bottom: var(--settings-panel-bottom);
 }
 #tab-members .panel-header {
-  margin-bottom: clamp(8px, 1.2vh, 14px);
+  margin-bottom: clamp(14px, 2vh, 22px);
 }
 
 /* Billing: denser chrome below the header; same tab→content gap as other panels */
 #tab-billing.panel {
-  padding-bottom: clamp(10px, 1.6vh, 20px);
+  padding-bottom: var(--settings-panel-bottom);
 }
 #tab-billing .panel-header {
-  margin-bottom: clamp(4px, 0.8vh, 10px);
+  margin-bottom: clamp(14px, 2vh, 22px);
   padding-top: 0;
 }
 #tab-billing .panel-sub {
@@ -1183,7 +1194,7 @@ h2 {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: clamp(8px, 1.2vh, 14px);
+  margin-bottom: clamp(14px, 2vh, 22px);
   padding-top: 0;
   flex-shrink: 0;
 }
@@ -1339,6 +1350,45 @@ h2 {
   min-height: 0;
   box-sizing: border-box;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  /* Simple custom scrollbar — paper track, plain rectangle thumb, no arrows */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 32%, var(--paper)) var(--paper);
+}
+.members-list::-webkit-scrollbar {
+  width: 6px;
+}
+.members-list::-webkit-scrollbar-button,
+.members-list::-webkit-scrollbar-button:single-button,
+.members-list::-webkit-scrollbar-button:double-button,
+.members-list::-webkit-scrollbar-button:vertical:start:decrement,
+.members-list::-webkit-scrollbar-button:vertical:end:increment,
+.members-list::-webkit-scrollbar-button:vertical:start:increment,
+.members-list::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+}
+.members-list::-webkit-scrollbar-track {
+  background: var(--paper);
+  border: none;
+  margin: 2px 0;
+}
+.members-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink) 32%, var(--paper));
+  border: none;
+  border-radius: 0;
+  min-height: 28px;
+}
+.members-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink) 48%, var(--paper));
+}
+.members-list::-webkit-scrollbar-corner {
+  background: var(--paper);
+  border: none;
 }
 .members-list--fading {
   opacity: 0;
@@ -3214,7 +3264,7 @@ body.is-reordering * {
 }
 
 .danger-zone {
-  margin-top: clamp(20px, 3.2vh, 40px);
+  margin-top: clamp(40px, 6vh, 72px);
   max-width: 520px;
   width: 100%;
   border: 2px solid var(--ink);
@@ -4183,12 +4233,12 @@ body.is-reordering * {
   .sidebar .brand { margin-bottom: 16px; }
   .content-header { margin-bottom: 0; }
   .content { padding-top: 18px; }
-  .panel { padding-top: 12px; padding-bottom: 10px; }
-  .panel-header { padding-top: 0; margin-bottom: 6px; }
+  .panel { padding-top: 20px; padding-bottom: var(--settings-panel-bottom); }
+  .panel-header { padding-top: 0; margin-bottom: 12px; }
   .nav-item { padding: 8px 10px; }
   h1, .page-title { margin-bottom: 8px; }
   .settings-stack { gap: 10px; }
-  .danger-zone { margin-top: 16px; }
+  .danger-zone { margin-top: 32px; }
   .danger-zone__head { padding: 10px 14px 8px; }
   .danger-zone__row { padding: 10px 14px; }
   .workspace-logo-badge { width: 56px; height: 56px; }
