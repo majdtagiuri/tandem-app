@@ -1111,12 +1111,16 @@ function renderMembers(options = {}) {
   }
 }
 
+let membersScrollbarSyncing = false;
+
 function syncMembersScrollbar() {
   const list = document.getElementById('members-list');
   const shell = document.getElementById('members-list-shell');
   const rail = document.getElementById('members-scrollbar');
   const thumb = document.getElementById('members-scrollbar-thumb');
-  if (!list || !rail || !thumb || !shell) return;
+  if (!list || !rail || !thumb || !shell || membersScrollbarSyncing) return;
+
+  membersScrollbarSyncing = true;
 
   // Measure fit at full width (no track) so a track isn't forced when everyone fits
   rail.hidden = true;
@@ -1140,21 +1144,35 @@ function syncMembersScrollbar() {
     list.scrollTop = 0;
     thumb.style.height = '';
     thumb.style.transform = '';
+    requestAnimationFrame(() => { membersScrollbarSyncing = false; });
     return;
   }
 
-  const updateThumb = () => {
-    const { scrollTop, scrollHeight, clientHeight } = list;
-    const trackH = rail.clientHeight || 1;
-    const thumbH = Math.max(28, Math.round((clientHeight / scrollHeight) * trackH));
-    const maxTop = Math.max(0, trackH - thumbH);
-    const maxScroll = Math.max(1, scrollHeight - clientHeight);
-    const top = maxTop === 0 ? 0 : (scrollTop / maxScroll) * maxTop;
-    thumb.style.height = `${thumbH}px`;
-    thumb.style.transform = `translateY(${top}px)`;
-  };
+  requestAnimationFrame(() => {
+    updateMembersScrollbarThumb();
+    membersScrollbarSyncing = false;
+  });
+}
 
-  requestAnimationFrame(updateThumb);
+function updateMembersScrollbarThumb() {
+  const list = document.getElementById('members-list');
+  const rail = document.getElementById('members-scrollbar');
+  const thumb = document.getElementById('members-scrollbar-thumb');
+  if (!list || !rail || !thumb || rail.hidden) return;
+
+  const { scrollTop, scrollHeight, clientHeight } = list;
+  if (scrollHeight <= clientHeight + 2) {
+    syncMembersScrollbar();
+    return;
+  }
+
+  const trackH = rail.clientHeight || 1;
+  const thumbH = Math.max(28, Math.round((clientHeight / scrollHeight) * trackH));
+  const maxTop = Math.max(0, trackH - thumbH);
+  const maxScroll = Math.max(1, scrollHeight - clientHeight);
+  const top = maxTop === 0 ? 0 : (scrollTop / maxScroll) * maxTop;
+  thumb.style.height = `${thumbH}px`;
+  thumb.style.transform = `translateY(${top}px)`;
 }
 
 function bindMembersScrollbar() {
@@ -1167,12 +1185,14 @@ function bindMembersScrollbar() {
   }
   rail.dataset.bound = '1';
 
-  list.addEventListener('scroll', syncMembersScrollbar, { passive: true });
+  list.addEventListener('scroll', updateMembersScrollbarThumb, { passive: true });
   window.addEventListener('resize', syncMembersScrollbar);
 
   if (typeof ResizeObserver !== 'undefined') {
     const ro = new ResizeObserver(() => syncMembersScrollbar());
     ro.observe(list);
+    const shell = document.getElementById('members-list-shell');
+    if (shell) ro.observe(shell);
   }
 
   let dragging = false;
