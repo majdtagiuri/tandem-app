@@ -408,7 +408,7 @@ select,
   min-height: 0;
   max-width: none;
   width: 100%;
-  padding: clamp(16px, 3vh, 40px) 0 0 var(--settings-gutter);
+  padding: clamp(12px, 2.2vh, 32px) 0 0 var(--settings-gutter);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -550,14 +550,15 @@ h2 {
   justify-content: center;
   flex-shrink: 0;
   line-height: 0;
+  align-self: center;
 }
 .plan-card__name .icon {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
 }
 .plan-tier__name .icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 .dropdown__chevron .icon {
   width: 14px;
@@ -992,27 +993,21 @@ h2 {
   100% { transform: translateX(0); }
 }
 
-/* Solo plan — head then body */
-.plan-tier:hover .icon--solo svg > circle,
-.plan-card:hover .icon--solo svg > circle {
+/* Solo plan — head then body (plan picker only; not the billing plan card) */
+.plan-tier:hover .icon--solo svg > circle {
   animation: iconPopIn 0.32s ease both;
 }
-.plan-tier:hover .icon--solo svg > path,
-.plan-card:hover .icon--solo svg > path {
+.plan-tier:hover .icon--solo svg > path {
   animation: iconPopIn 0.32s ease 0.12s both;
 }
 
 /* Studio — front person, then people behind */
 .plan-tier:hover .icon--studio svg > circle,
-.plan-tier:hover .icon--studio svg > path:nth-child(3),
-.plan-card:hover .icon--studio svg > circle,
-.plan-card:hover .icon--studio svg > path:nth-child(3) {
+.plan-tier:hover .icon--studio svg > path:nth-child(3) {
   animation: iconPopIn 0.3s ease both;
 }
 .plan-tier:hover .icon--studio svg > path:nth-child(4),
-.plan-tier:hover .icon--studio svg > path:nth-child(5),
-.plan-card:hover .icon--studio svg > path:nth-child(4),
-.plan-card:hover .icon--studio svg > path:nth-child(5) {
+.plan-tier:hover .icon--studio svg > path:nth-child(5) {
   animation: iconPopIn 0.3s ease 0.14s both;
 }
 
@@ -1021,8 +1016,7 @@ h2 {
   stroke-dasharray: 320;
   stroke-dashoffset: 0;
 }
-.plan-tier:hover .icon--agency svg > :not(:first-child),
-.plan-card:hover .icon--agency svg > :not(:first-child) {
+.plan-tier:hover .icon--agency svg > :not(:first-child) {
   animation: iconAgencyDraw 1.5s cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 @keyframes iconAgencyDraw {
@@ -1030,13 +1024,13 @@ h2 {
   to { stroke-dashoffset: 0; }
 }
 
-/* Free plan — gift lid pops then settles */
-.plan-card:hover .icon--free svg > path:nth-child(2),
-.plan-card:hover .icon--free svg > rect {
+/* Free plan — gift lid pops then settles (plan picker / free card only if used in tiers) */
+.plan-tier:hover .icon--free svg > path:nth-child(2),
+.plan-tier:hover .icon--free svg > rect {
   animation: iconPopIn 0.32s ease both;
 }
-.plan-card:hover .icon--free svg > path:nth-child(3),
-.plan-card:hover .icon--free svg > path:nth-child(4) {
+.plan-tier:hover .icon--free svg > path:nth-child(3),
+.plan-tier:hover .icon--free svg > path:nth-child(4) {
   animation: iconPopIn 0.32s ease 0.12s both;
 }
 .page-title:hover .icon--workspace svg > path:nth-child(8),
@@ -1126,7 +1120,7 @@ h2 {
 }
 
 .panel {
-  padding: clamp(28px, 3.6vh, 42px) var(--settings-gutter) clamp(16px, 3vh, 40px) 0;
+  padding: clamp(28px, 3.6vh, 48px) var(--settings-gutter) clamp(12px, 2vh, 28px) 0;
   margin-right: 0;
   flex: 1;
   min-height: 0;
@@ -1150,12 +1144,12 @@ h2 {
   flex-shrink: 0;
 }
 
-/* Billing: tighter chrome so the plan card fits most viewports; scroll only when short */
+/* Billing: denser chrome below the header; same tab→content gap as other panels */
 #tab-billing.panel {
-  padding-top: clamp(26px, 3.2vh, 38px);
+  padding-bottom: clamp(10px, 1.6vh, 20px);
 }
 #tab-billing .panel-header {
-  margin-bottom: clamp(6px, 1vh, 12px);
+  margin-bottom: clamp(4px, 0.8vh, 10px);
   padding-top: 0;
 }
 #tab-billing .panel-sub {
@@ -1180,7 +1174,7 @@ h2 {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: clamp(10px, 1.5vh, 16px);
+  margin-bottom: clamp(14px, 2vh, 20px);
   padding-top: 0;
   flex-shrink: 0;
 }
@@ -2201,18 +2195,18 @@ body.is-reordering * {
   max-width: 420px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 .settings-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 .hint { font-size: 12px; color: var(--ink-muted); line-height: 1.5; margin: 0; }
 .form-actions {
   margin-top: 4px;
-  padding-top: 4px;
+  padding-top: 8px;
 }
 
 .field-label {
@@ -2323,7 +2317,7 @@ body.is-reordering * {
 
 .workspace-logo-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 14px;
   margin: 0;
   min-width: 0;
@@ -2374,7 +2368,7 @@ body.is-reordering * {
   line-height: 1.3;
 }
 .workspace-logo-meta__sub {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 12px;
   color: var(--ink-muted);
   line-height: 1.35;
@@ -2393,7 +2387,7 @@ body.is-reordering * {
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   background: var(--surface);
-  padding: clamp(12px, 1.8vh, 20px);
+  padding: clamp(10px, 1.4vh, 16px);
   box-shadow: var(--elevation-container);
   flex: 0 0 auto;
   min-height: 0;
@@ -2403,27 +2397,28 @@ body.is-reordering * {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: clamp(8px, 1.4vh, 16px);
+  margin-bottom: clamp(6px, 1vh, 12px);
   gap: 12px;
 }
 .plan-card__label { margin: 0; font-size: 12px; color: var(--ink-muted); }
 .plan-card__name {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-family: var(--font-display);
   font-size: clamp(20px, 2.6vh, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 .plan-card__name #plan-name {
   display: inline-block;
-  line-height: 1.15;
+  line-height: 1;
+  padding-top: 0.06em; /* optical align with Phosphor glyph */
 }
 .plan-card__price {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -2431,7 +2426,7 @@ body.is-reordering * {
 }
 .plan-card__amount {
   font-family: var(--font-display);
-  font-size: clamp(28px, 3.4vh, 36px);
+  font-size: clamp(24px, 3vh, 34px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -2514,8 +2509,8 @@ body.is-reordering * {
 }
 
 .plan-card__actions {
-  margin-top: clamp(10px, 1.5vh, 16px);
-  padding-top: clamp(10px, 1.5vh, 16px);
+  margin-top: clamp(8px, 1.2vh, 12px);
+  padding-top: clamp(8px, 1.2vh, 12px);
   border-top: none;
   display: flex;
   flex-wrap: wrap;
@@ -2550,9 +2545,9 @@ body.is-reordering * {
 .plan-meta {
   margin: 0;
   border-top: 2px solid var(--ink);
-  padding: clamp(10px, 1.4vh, 14px) 0 clamp(4px, 0.8vh, 8px);
+  padding: clamp(8px, 1.1vh, 12px) 0 clamp(2px, 0.6vh, 6px);
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 .plan-meta__row {
   display: grid;
@@ -2584,8 +2579,8 @@ body.is-reordering * {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: clamp(10px, 1.5vh, 16px);
-  padding: clamp(10px, 1.4vh, 14px) 16px;
+  margin-top: clamp(8px, 1.2vh, 12px);
+  padding: clamp(8px, 1.2vh, 12px) 14px;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   background: var(--surface);
@@ -2821,7 +2816,7 @@ body.is-reordering * {
 }
 
 .payment-current {
-  margin: 10px 0 0;
+  margin: 20px 0 0;
   padding: 0;
   border: none;
   background: transparent;
@@ -2897,8 +2892,8 @@ body.is-reordering * {
 }
 
 .billing-history {
-  margin-top: clamp(8px, 1.2vh, 16px);
-  padding: clamp(10px, 1.3vh, 14px) 16px;
+  margin-top: clamp(6px, 1vh, 12px);
+  padding: clamp(8px, 1.1vh, 12px) 14px;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   background: var(--surface);
@@ -3207,7 +3202,7 @@ body.is-reordering * {
 }
 
 .danger-zone {
-  margin-top: 56px;
+  margin-top: clamp(48px, 7vh, 80px);
   max-width: 520px;
   width: 100%;
   border: 2px solid var(--ink);
@@ -3468,14 +3463,16 @@ body.is-reordering * {
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  line-height: 1.15;
+  gap: 10px;
+  line-height: 1;
   min-width: 0;
   max-width: 100%;
 }
 .plan-tier__name span {
   min-width: 0;
   overflow-wrap: anywhere;
+  line-height: 1;
+  padding-top: 0.06em; /* optical align with Phosphor glyph */
 }
 .plan-tier__price {
   margin: 0;
@@ -4173,9 +4170,15 @@ body.is-reordering * {
   .sidebar { padding: 16px 14px; }
   .sidebar .brand { margin-bottom: 16px; }
   .content-header { margin-bottom: 0; }
-  .panel { padding-top: 28px; }
-  .panel-header { padding-top: 0; margin-bottom: 10px; }
+  .content { padding-top: 10px; }
+  .panel { padding-top: 14px; padding-bottom: 12px; }
+  .panel-header { padding-top: 0; margin-bottom: 8px; }
   .nav-item { padding: 8px 10px; }
+  #tab-billing .plan-card { padding: 10px 12px; }
+  #tab-billing .plan-card__amount { font-size: 24px; }
+  #tab-billing .payment-block,
+  #tab-billing .billing-history { margin-top: 8px; padding: 8px 12px; }
+  #tab-billing .plan-card__actions { margin-top: 8px; padding-top: 8px; }
 }
 
 @media (max-width: 760px) and (max-height: 720px) {
