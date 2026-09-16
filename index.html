@@ -73,7 +73,7 @@
       <span class="nav-item"><span data-icon="dashboard" aria-hidden="true"></span>Dashboard</span>
       <span class="nav-item"><span data-icon="invoices" aria-hidden="true"></span>Invoices</span>
       <span class="nav-item"><span data-icon="tax" aria-hidden="true"></span>Tax</span>
-      <span class="nav-item nav-item--active" aria-current="page"><span data-icon="settings" aria-hidden="true"></span>Settings</span>
+      <button type="button" class="nav-item nav-item--active" aria-current="page" id="nav-settings-btn"><span data-icon="settings" aria-hidden="true"></span>Settings</button>
     </nav>
 
     <div class="sidebar-footer">
@@ -214,7 +214,10 @@
           <div>
             <p class="plan-card__label">Current plan</p>
             <p class="plan-card__name" id="plan-name-wrap"><span id="plan-name-icon" class="icon-wrap" aria-hidden="true"></span><span id="plan-name">Agency</span></p>
-            <p class="plan-card__price" id="plan-price">$79/mo · Billed monthly</p>
+            <p class="plan-card__price" id="plan-price">
+              <span class="plan-card__amount" id="plan-amount">$249</span>
+              <span class="plan-card__cadence" id="plan-cadence">/mo · Billed monthly</span>
+            </p>
           </div>
           <span class="plan-badge" id="plan-badge">Active</span>
         </div>
@@ -231,17 +234,24 @@
         </dl>
 
         <div class="payment-block" id="payment-block">
-          <div class="payment-block__info">
-            <p class="payment-block__label">Payment method</p>
-            <p class="payment-block__value" id="plan-payment">Visa ending in 4242</p>
+          <div class="pay-method" id="plan-pay-method">
+            <div class="pay-method__card" id="plan-pay-card" aria-hidden="true">
+              <span class="pay-method__chip" aria-hidden="true"></span>
+              <span class="pay-method__network" id="plan-pay-network">Visa</span>
+              <span class="pay-method__digits" id="plan-payment">···· 4242</span>
+            </div>
+            <div class="pay-method__copy">
+              <p class="payment-block__label" id="plan-payment-label">Payment method</p>
+              <p class="payment-block__value" id="plan-payment-detail">Default for renewals</p>
+            </div>
           </div>
-          <button type="button" class="btn" id="manage-payment-btn"><span data-icon="card" aria-hidden="true"></span>Payment</button>
+          <button type="button" class="btn" id="manage-payment-btn"><span data-icon="card" aria-hidden="true"></span>Manage</button>
         </div>
 
         <div class="billing-history" id="billing-history">
           <div class="billing-history__head">
             <p class="billing-history__label">Invoices &amp; billing history</p>
-            <button type="button" class="btn--text" id="view-billing-history-btn">View all</button>
+            <button type="button" class="btn--text billing-history__view-all" id="view-billing-history-btn">View all</button>
           </div>
           <ul class="billing-history__list" id="billing-history-list"></ul>
         </div>
@@ -261,9 +271,9 @@
         </p>
 
         <div class="plan-card__actions">
-          <button type="button" class="btn btn--primary" id="change-plan-btn"><span data-icon="swap" aria-hidden="true"></span><span id="change-plan-label">Change plan</span></button>
           <button type="button" class="btn btn--danger" id="cancel-plan-btn"><span data-icon="ban" aria-hidden="true"></span>Cancel plan</button>
           <button type="button" class="btn" id="keep-plan-btn" hidden><span data-icon="check" aria-hidden="true"></span>Keep plan</button>
+          <button type="button" class="btn btn--primary" id="change-plan-btn"><span data-icon="swap" aria-hidden="true"></span><span id="change-plan-label">Change plan</span></button>
         </div>
       </div>
     </section>
@@ -380,16 +390,16 @@
 </div>
 
 <div class="overlay" id="change-plan-overlay" hidden>
-  <div class="modal modal--wide modal--scroll" role="dialog" aria-modal="true" aria-labelledby="change-plan-title">
-    <h2 id="change-plan-title">Change plan</h2>
-    <p class="modal-lead">Pick a plan that fits your team size. Seat limits apply to everyone in the workspace, including pending invites.</p>
+  <div class="modal modal--plans modal--scroll" role="dialog" aria-modal="true" aria-labelledby="change-plan-title">
+    <h2 id="change-plan-title">Choose a subscription</h2>
+    <p class="modal-lead">Compare tiers by seats and billing features. Limits apply to everyone in the workspace, including pending invites.</p>
     <p class="field-error" id="plan-switch-error" hidden></p>
     <div class="plan-tiers" id="plan-tiers"></div>
-    <label class="simulate-decline">
-      <input type="checkbox" id="simulate-decline">
-      Simulate card decline (test)
-    </label>
-    <div class="modal-actions">
+    <div class="modal-actions modal-actions--plans">
+      <label class="simulate-decline">
+        <input type="checkbox" id="simulate-decline">
+        Simulate card decline (test)
+      </label>
       <button class="btn" id="change-plan-close" type="button">Close</button>
     </div>
   </div>
@@ -411,6 +421,7 @@
     <h2 id="plan-block-title">Can't switch yet</h2>
     <p class="modal-body" id="plan-block-body"></p>
     <div class="modal-actions">
+      <button class="btn" id="plan-block-test" type="button">Test</button>
       <button class="btn btn--primary" id="plan-block-ok" type="button">Cancel</button>
     </div>
   </div>
@@ -490,22 +501,34 @@
 
 <div class="overlay" id="payment-overlay" hidden>
   <div class="modal modal--invoice modal--scroll" role="dialog" aria-modal="true" aria-labelledby="payment-title">
-    <h2 id="payment-title">Payment</h2>
-    <p class="modal-lead" id="payment-lead">View your card, update it, or pay when a bill is due at the end of your cycle.</p>
+    <h2 id="payment-title">Payment method</h2>
+    <p class="modal-lead" id="payment-lead">Cards on file are charged for plan renewals and open invoices.</p>
 
     <div class="payment-sheet">
       <div class="payment-sheet__top">
-        <p class="payment-sheet__number" id="payment-sheet-title">Payment method</p>
+        <p class="payment-sheet__number" id="payment-sheet-title">Billing card</p>
         <span class="payment-sheet__status" id="payment-sheet-status">On file</span>
       </div>
 
-      <div class="payment-current" id="payment-current">
-        <dl class="payment-sheet__rows">
-          <div class="payment-sheet__row">
-            <dt id="payment-current-label">Current card</dt>
-            <dd id="payment-current-value">Visa ending in 4242</dd>
+      <div class="pay-face" id="pay-face" data-brand="visa">
+        <div class="pay-face__row pay-face__row--top">
+          <span class="pay-face__chip" aria-hidden="true"></span>
+          <span class="pay-face__brand" id="pay-face-brand">Visa</span>
+        </div>
+        <p class="pay-face__number" id="pay-face-number">···· ···· ···· 4242</p>
+        <div class="pay-face__row pay-face__row--bottom">
+          <div>
+            <span class="pay-face__label">Cardholder</span>
+            <span class="pay-face__value" id="pay-face-name">Conor McKenna</span>
           </div>
-        </dl>
+          <div class="pay-face__exp">
+            <span class="pay-face__label">Expires</span>
+            <span class="pay-face__value" id="pay-face-exp">09/28</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-current" id="payment-current">
         <button type="button" class="btn btn--text-danger payment-remove-btn" id="payment-remove-btn">
           <span data-icon="remove" aria-hidden="true"></span>
           Remove payment method
@@ -520,7 +543,10 @@
         <input type="text" id="pay-name" name="card-name" placeholder="Alex Rivera" maxlength="60">
 
         <label class="field-label" for="pay-number">Card number</label>
-        <input type="text" id="pay-number" name="card-number" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
+        <div class="pay-input">
+          <input type="text" id="pay-number" name="card-number" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
+          <span class="pay-input__brand" id="pay-input-brand" aria-hidden="true">Card</span>
+        </div>
 
         <div class="field-row">
           <div>
@@ -533,6 +559,7 @@
           </div>
         </div>
         <p class="field-error" id="payment-error" hidden></p>
+        <p class="payment-secure" id="payment-secure">Encrypted · Used only for plan billing and invoices</p>
       </form>
 
       <div class="payment-sheet__footer">

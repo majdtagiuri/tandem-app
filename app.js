@@ -56,21 +56,21 @@ const PLANS = {
   solo: {
     id: 'solo',
     name: 'Solo',
-    price: 9,
+    price: 29,
     seats: 1,
     features: ['1 seat', 'Core invoicing', 'Email support']
   },
   studio: {
     id: 'studio',
     name: 'Studio',
-    price: 29,
+    price: 99,
     seats: 10,
     features: ['10 seats', 'Role-based access', 'Invoice & tax exports']
   },
   agency: {
     id: 'agency',
     name: 'Agency',
-    price: 79,
+    price: 249,
     seats: 20,
     features: ['20 seats', 'Advanced permissions', 'Priority support']
   }
@@ -172,7 +172,7 @@ const state = {
     {
       id: 1,
       name: 'Conor McKenna',
-      email: 'conor.mckenna@goswag.com',
+      email: 'conor@goswag.com',
       position: 'CEO & Co-Founder',
       role: 'owner',
       status: 'active',
@@ -182,7 +182,7 @@ const state = {
     {
       id: 2,
       name: 'Ben Greenock',
-      email: 'ben.greenock@goswag.com',
+      email: 'ben@goswag.com',
       position: 'CCO & Co-Founder',
       role: 'admin',
       status: 'active',
@@ -192,7 +192,7 @@ const state = {
     {
       id: 3,
       name: 'Marco Claudio Trecca',
-      email: 'marco.trecca@goswag.com',
+      email: 'marco@goswag.com',
       position: 'Chief Product Officer',
       role: 'admin',
       status: 'active',
@@ -202,7 +202,7 @@ const state = {
     {
       id: 4,
       name: 'Hilary Taylor',
-      email: 'hilary.taylor@goswag.com',
+      email: 'hilary@goswag.com',
       position: 'Talent Acquisition Manager',
       role: 'admin',
       status: 'active',
@@ -211,8 +211,8 @@ const state = {
     },
     {
       id: 5,
-      name: 'Conner M.',
-      email: 'conner.m@goswag.com',
+      name: 'Conner Murphy',
+      email: 'conner@goswag.com',
       position: 'Lead Engineer',
       role: 'member',
       status: 'active',
@@ -221,7 +221,7 @@ const state = {
     {
       id: 6,
       name: 'Hollie Russell-McGinnis',
-      email: 'hollie.russell@goswag.com',
+      email: 'hollie@goswag.com',
       position: 'Graphic Design Lead',
       role: 'member',
       status: 'active',
@@ -231,7 +231,7 @@ const state = {
     {
       id: 7,
       name: 'Rebecca Cooper',
-      email: 'rebecca.cooper@goswag.com',
+      email: 'rebecca@goswag.com',
       position: 'Head of Growth',
       role: 'viewer',
       status: 'pending',
@@ -241,7 +241,7 @@ const state = {
     {
       id: 8,
       name: 'Chantelle MacNeil',
-      email: 'chantelle.macneil@goswag.com',
+      email: 'chantelle@goswag.com',
       position: 'Head of Sales',
       role: 'viewer',
       status: 'inactive',
@@ -254,7 +254,7 @@ const state = {
     cycle: 'monthly',
     status: 'active', // active | canceling | free
     nextBillingDate: 'October 12, 2026',
-    paymentMethod: { brand: 'Visa', last4: '4242' },
+    paymentMethod: { brand: 'Visa', last4: '4242', name: 'Conor McKenna', expiry: '09/28' },
     invoices: [
       {
         id: 'inv-2026-09',
@@ -262,7 +262,7 @@ const state = {
         date: 'Sep 12, 2026',
         period: 'Sep 12 – Oct 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -273,7 +273,7 @@ const state = {
         date: 'Aug 12, 2026',
         period: 'Aug 12 – Sep 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -284,7 +284,7 @@ const state = {
         date: 'Jul 12, 2026',
         period: 'Jul 12 – Aug 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -295,7 +295,7 @@ const state = {
         date: 'Jun 12, 2026',
         period: 'Jun 12 – Jul 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -306,7 +306,7 @@ const state = {
         date: 'May 12, 2026',
         period: 'May 12 – Jun 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -317,7 +317,7 @@ const state = {
         date: 'Apr 12, 2026',
         period: 'Apr 12 – May 11, 2026',
         planName: 'Agency',
-        amount: 79,
+        amount: 249,
         tax: 0,
         status: 'Paid',
         payment: 'Visa ···· 4242'
@@ -332,6 +332,8 @@ let pendingDeactivateId = null;
 let pendingCancelInviteId = null;
 let pendingPermissionsId = null;
 let pendingPlanId = null;
+let blockedPlanId = null;
+let membersBeforeSoloTest = null;
 let pendingTransferId = null;
 let pendingInvoiceId = null;
 let invoiceFromHistory = false;
@@ -362,6 +364,10 @@ function canTransferOwnership() {
 
 function isFreePlan() {
   return state.billing.status === 'free' || state.billing.planId === 'free';
+}
+
+function isSoloPlan() {
+  return !isFreePlan() && state.billing.planId === 'solo';
 }
 
 function hasPaymentMethod() {
@@ -469,7 +475,7 @@ let justJoinedMemberId = null;
 
 function activateJustJoinedMember() {
   // Preview as Other = the pending invitee accepting and entering the workspace
-  let person = state.members.find(m => m.email === 'rebecca.cooper@goswag.com');
+  let person = state.members.find(m => m.email === 'rebecca@goswag.com');
   if (!person) {
     person = state.members.find(m => m.status === 'pending');
   }
@@ -483,7 +489,7 @@ function activateJustJoinedMember() {
 
 function openWelcomeJoinModal() {
   const person = state.members.find(m => m.id === justJoinedMemberId)
-    || state.members.find(m => m.email === 'rebecca.cooper@goswag.com');
+    || state.members.find(m => m.email === 'rebecca@goswag.com');
   const workspaceName = document.getElementById('workspace-name')?.value.trim() || 'Go Swag';
   const title = document.getElementById('welcome-join-title');
   const lead = document.getElementById('welcome-join-lead');
@@ -536,7 +542,34 @@ function shortName(name) {
 }
 
 function seatsUsed() {
+  // Solo: owner takes the seat; viewers are extras and don't consume seats
+  if (isSoloPlan()) {
+    return state.members.filter(m => m.role !== 'viewer').length;
+  }
   return state.members.length;
+}
+
+function seatsNeededForPlan(planId) {
+  if (planId === 'solo') {
+    return state.members.filter(m => m.role !== 'viewer').length;
+  }
+  return state.members.length;
+}
+
+function cloneMembers(list) {
+  return list.map(m => ({
+    ...m,
+    permissions: m.permissions ? { ...m.permissions } : permissionsForRole(m.role)
+  }));
+}
+
+function restoreMembersAfterSoloTest() {
+  if (!membersBeforeSoloTest) return false;
+  const plan = currentPlan();
+  if (isSoloPlan() || plan.seats < membersBeforeSoloTest.length) return false;
+  state.members = cloneMembers(membersBeforeSoloTest);
+  membersBeforeSoloTest = null;
+  return true;
 }
 
 function currentPlan() {
@@ -894,7 +927,7 @@ function buildRow(m) {
   const isOwner = m.role === 'owner';
   const manage = canManageMembers();
   const editTeam = canEditTeam();
-  const canEdit = editTeam && !isPending && !isInactive && !isOwner;
+  const canEdit = editTeam && !isSoloPlan() && !isPending && !isInactive && !isOwner;
   const showPhoto = Boolean(m.avatar) && m.status === 'active';
   const avatarClass = isPending
     ? 'avatar avatar--pending'
@@ -943,7 +976,7 @@ function buildRow(m) {
   roleCell.className = 'member-role';
   if (isOwner) {
     roleCell.innerHTML = roleTag('owner');
-  } else if (isPending || isInactive || !editTeam || reorderMode) {
+  } else if (isPending || isInactive || !canEdit || reorderMode) {
     roleCell.innerHTML = roleTag(m.role);
   } else {
     const dropdown = createDropdown({
@@ -1042,10 +1075,11 @@ function renderMembers(options = {}) {
       <div class="member-info">
         <div class="member-identity">
           <p class="member-name">No teammates yet</p>
-          <p class="member-email">Invite people to help manage this workspace.</p>
+          <p class="member-email">${isSoloPlan()
+            ? 'Use Invite to add viewers to this workspace.'
+            : 'Use Invite to add people to this workspace.'}</p>
         </div>
       </div>
-      <button class="btn btn--primary" type="button" data-action="invite">${iconSvg('invite')}<span>Invite teammate</span></button>
     `;
     list.appendChild(emptyRow);
     renderBilling();
@@ -1074,6 +1108,10 @@ function renderMembers(options = {}) {
 function changeRole(id, role) {
   if (!canEditTeam()) {
     promptUpgrade('Upgrade your plan to change roles');
+    return;
+  }
+  if (isSoloPlan()) {
+    showToast('Solo only supports Viewer. Upgrade to change roles.');
     return;
   }
   const m = state.members.find(x => x.id === id);
@@ -1572,8 +1610,23 @@ function openInviteModal() {
     promptUpgrade('Upgrade your plan to invite teammates');
     return;
   }
+  const solo = isSoloPlan();
+  const title = document.getElementById('invite-title');
+  const lead = document.querySelector('#invite-overlay .modal-lead');
+  const roleLabel = document.getElementById('invite-role-label');
+  const roleWrap = document.getElementById('invite-role');
+
+  if (title) title.textContent = solo ? 'Invite a viewer' : 'Invite a teammate';
+  if (lead) {
+    lead.textContent = solo
+      ? 'Solo includes viewers only. They\'ll get an email with a link to join.'
+      : 'They\'ll get an email with a link to join this workspace.';
+  }
+  if (roleLabel) roleLabel.hidden = solo;
+  if (roleWrap) roleWrap.hidden = solo;
+
   document.getElementById('invite-email').value = '';
-  inviteRoleDropdown.setValue('member');
+  inviteRoleDropdown.setValue(solo ? 'viewer' : 'member');
   document.getElementById('invite-error').hidden = true;
   openOverlay('invite-overlay');
   document.getElementById('invite-email').focus();
@@ -1617,9 +1670,14 @@ function closeAllOverlays() {
   pendingPermissionsId = null;
   pendingInfoId = null;
   pendingPlanId = null;
+  blockedPlanId = null;
   pendingTransferId = null;
   pendingInvoiceId = null;
   invoiceFromHistory = false;
+  if (restoreMembersAfterSoloTest()) {
+    renderMembers();
+    renderBilling();
+  }
 }
 
 function showToast(msg) {
@@ -1633,7 +1691,7 @@ function showToast(msg) {
 function sendInvite() {
   const emailInput = document.getElementById('invite-email');
   const errorEl = document.getElementById('invite-error');
-  const role = inviteRoleDropdown.getValue();
+  const role = isSoloPlan() ? 'viewer' : inviteRoleDropdown.getValue();
   const email = emailInput.value.trim();
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -1755,13 +1813,17 @@ function renderBilling() {
   document.getElementById('plan-name').textContent = plan.name;
   document.getElementById('plan-name-icon').innerHTML = iconSvg(plan.id);
 
+  const amountEl = document.getElementById('plan-amount');
+  const cadenceEl = document.getElementById('plan-cadence');
   if (free) {
-    document.getElementById('plan-price').textContent = 'Limited access · Upgrade anytime';
+    if (amountEl) amountEl.textContent = '$0';
+    if (cadenceEl) cadenceEl.textContent = 'Limited access · Upgrade anytime';
   } else if (canceling) {
-    document.getElementById('plan-price').textContent =
-      `$${plan.price}/mo · Cancels ${state.billing.nextBillingDate}`;
+    if (amountEl) amountEl.textContent = `$${plan.price}`;
+    if (cadenceEl) cadenceEl.textContent = `/mo · Cancels ${state.billing.nextBillingDate}`;
   } else {
-    document.getElementById('plan-price').textContent = `$${plan.price}/mo · Billed monthly`;
+    if (amountEl) amountEl.textContent = `$${plan.price}`;
+    if (cadenceEl) cadenceEl.textContent = '/mo · Billed monthly';
   }
 
   const seatsEl = document.getElementById('plan-seats');
@@ -1818,7 +1880,7 @@ function renderBilling() {
   if (managePaymentBtn) {
     managePaymentBtn.hidden = !manageBilling;
     managePaymentBtn.innerHTML = hasCard
-      ? `${iconSvg('card')}<span>Payment</span>`
+      ? `${iconSvg('card')}<span>Manage</span>`
       : `${iconSvg('card')}<span>Add card</span>`;
   }
 
@@ -1832,14 +1894,30 @@ function renderBilling() {
     paymentBlock.classList.toggle('payment-block--empty', !hasCard);
   }
   const pm = state.billing.paymentMethod;
-  document.getElementById('plan-payment').textContent = hasCard
-    ? `${pm.brand} ending in ${pm.last4}`
-    : 'No payment method on file';
+  const networkEl = document.getElementById('plan-pay-network');
+  const digitsEl = document.getElementById('plan-payment');
+  const detailEl = document.getElementById('plan-payment-detail');
+  const labelEl = document.getElementById('plan-payment-label');
+  if (hasCard) {
+    if (networkEl) networkEl.textContent = pm.brand;
+    if (digitsEl) digitsEl.textContent = `···· ${pm.last4}`;
+    if (detailEl) {
+      detailEl.textContent = pm.expiry
+        ? `Renews with card · Exp ${pm.expiry}`
+        : 'Default for plan renewals';
+    }
+    if (labelEl) labelEl.textContent = 'Payment method';
+  } else {
+    if (networkEl) networkEl.textContent = 'Card';
+    if (digitsEl) digitsEl.textContent = 'No card on file';
+    if (detailEl) detailEl.textContent = 'Add a card to subscribe and pay invoices';
+    if (labelEl) labelEl.textContent = 'Payment method';
+  }
 
   if (billingSub) {
     billingSub.textContent = free
       ? 'Free plan is limited. Choose a paid plan to unlock the workspace.'
-      : 'Manage your plan, seats, and payment method.';
+      : 'Manage your subscription, seats, and billing card.';
   }
 
   renderBillingHistoryPreview();
@@ -1961,6 +2039,10 @@ function detectCardBrand(digits) {
   return 'Card';
 }
 
+function brandKey(brand) {
+  return String(brand || 'card').toLowerCase().replace(/\s+/g, '');
+}
+
 function formatCardNumber(value) {
   const digits = value.replace(/\D/g, '').slice(0, 16);
   return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
@@ -1970,6 +2052,53 @@ function formatExpiry(value) {
   const digits = value.replace(/\D/g, '').slice(0, 4);
   if (digits.length <= 2) return digits;
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function maskCardNumber(last4, digits = '') {
+  if (digits && digits.length > 4) {
+    const groups = formatCardNumber(digits).split(' ');
+    return groups.map((g, i) => (i < groups.length - 1 ? '····' : g)).join(' ');
+  }
+  if (last4) return `···· ···· ···· ${last4}`;
+  return '···· ···· ···· ····';
+}
+
+function syncPayFace(overrides = {}) {
+  const pm = state.billing.paymentMethod;
+  const nameInput = document.getElementById('pay-name')?.value.trim();
+  const numberRaw = document.getElementById('pay-number')?.value.replace(/\s/g, '') || '';
+  const expiryInput = document.getElementById('pay-expiry')?.value.trim();
+
+  const brand = overrides.brand
+    || (numberRaw ? detectCardBrand(numberRaw) : null)
+    || pm?.brand
+    || 'Card';
+  const last4 = overrides.last4
+    || (numberRaw.length >= 4 ? numberRaw.slice(-4) : null)
+    || pm?.last4
+    || '';
+  const name = overrides.name
+    || nameInput
+    || pm?.name
+    || 'Name on card';
+  const expiry = overrides.expiry
+    || expiryInput
+    || pm?.expiry
+    || 'MM/YY';
+
+  const face = document.getElementById('pay-face');
+  const brandEl = document.getElementById('pay-face-brand');
+  const numberEl = document.getElementById('pay-face-number');
+  const nameEl = document.getElementById('pay-face-name');
+  const expEl = document.getElementById('pay-face-exp');
+  const inputBrand = document.getElementById('pay-input-brand');
+
+  if (face) face.dataset.brand = brandKey(brand);
+  if (brandEl) brandEl.textContent = brand;
+  if (numberEl) numberEl.textContent = maskCardNumber(last4, numberRaw);
+  if (nameEl) nameEl.textContent = name;
+  if (expEl) expEl.textContent = expiry || 'MM/YY';
+  if (inputBrand) inputBrand.textContent = numberRaw ? brand : (pm?.brand || 'Card');
 }
 
 function resetPaymentForm() {
@@ -2015,12 +2144,9 @@ function openPaymentModal(options = {}) {
   resetPaymentForm();
 
   const hasCard = hasPaymentMethod();
-  const pm = state.billing.paymentMethod;
   const due = getDueInvoice();
   const lead = document.getElementById('payment-lead');
   const sheetStatus = document.getElementById('payment-sheet-status');
-  const currentLabel = document.getElementById('payment-current-label');
-  const currentValue = document.getElementById('payment-current-value');
   const removeBtn = document.getElementById('payment-remove-btn');
   const formHeading = document.getElementById('payment-form-heading');
   const dueNote = document.getElementById('payment-due-note');
@@ -2029,15 +2155,12 @@ function openPaymentModal(options = {}) {
 
   if (lead) {
     lead.textContent = hasCard
-      ? 'View your card, update it, remove it, or pay when a bill is due.'
-      : 'Add a card to pay invoices and subscribe to a paid plan.';
+      ? 'Update the card on file, remove it, or pay an open invoice.'
+      : 'Add a card to subscribe to a plan and settle invoices.';
   }
-  if (currentLabel) currentLabel.textContent = hasCard ? 'Current card' : 'Payment method';
-  currentValue.textContent = hasCard
-    ? `${pm.brand} ending in ${pm.last4}`
-    : 'No card on file';
   if (removeBtn) removeBtn.hidden = !hasCard;
-  if (formHeading) formHeading.textContent = hasCard ? 'Update card' : 'Add card';
+  if (formHeading) formHeading.textContent = hasCard ? 'Replace card' : 'Add card';
+  syncPayFace();
 
   if (sheetStatus) {
     sheetStatus.classList.remove('payment-sheet__status--empty', 'payment-sheet__status--due');
@@ -2060,12 +2183,12 @@ function openPaymentModal(options = {}) {
     paymentIntent = preferPay || fromInvoice ? 'pay' : 'save';
   } else if (isFreePlan()) {
     dueNote.classList.remove('payment-due-note--due');
-    dueNote.innerHTML = 'No payment due on the Free plan. Add a card before choosing a paid plan.';
+    dueNote.innerHTML = 'No charge on Free. Add a card before choosing a paid plan.';
     payBtn.hidden = true;
     paymentIntent = 'save';
   } else {
     dueNote.classList.remove('payment-due-note--due');
-    dueNote.innerHTML = `No payment due. Your next charge is on <strong>${escapeHtml(state.billing.nextBillingDate)}</strong>.`;
+    dueNote.innerHTML = `Next renewal charge on <strong>${escapeHtml(state.billing.nextBillingDate)}</strong>.`;
     payBtn.hidden = true;
     paymentIntent = 'save';
   }
@@ -2155,7 +2278,9 @@ function validatePaymentForm() {
   errorEl.hidden = true;
   return {
     brand: detectCardBrand(numberRaw),
-    last4: numberRaw.slice(-4)
+    last4: numberRaw.slice(-4),
+    name,
+    expiry
   };
 }
 
@@ -2163,11 +2288,16 @@ function savePaymentCard() {
   const card = validatePaymentForm();
   if (!card) return;
   const wasEmpty = !hasPaymentMethod();
-  state.billing.paymentMethod = { brand: card.brand, last4: card.last4 };
+  state.billing.paymentMethod = {
+    brand: card.brand,
+    last4: card.last4,
+    name: card.name,
+    expiry: card.expiry
+  };
   closeOverlay('payment-overlay');
   showToast(wasEmpty
-    ? `Card added · ${card.brand} ending in ${card.last4}`
-    : `Card updated · ${card.brand} ending in ${card.last4}`);
+    ? `Card added · ${card.brand} ···· ${card.last4}`
+    : `Card updated · ${card.brand} ···· ${card.last4}`);
   renderBilling();
 }
 
@@ -2181,6 +2311,8 @@ function payDueInvoice() {
   const numberRaw = document.getElementById('pay-number').value.replace(/\s/g, '');
   let brand = state.billing.paymentMethod?.brand;
   let last4 = state.billing.paymentMethod?.last4;
+  let name = state.billing.paymentMethod?.name;
+  let expiry = state.billing.paymentMethod?.expiry;
 
   // If the form is filled, use/update the card; otherwise charge the saved card
   if (numberRaw || document.getElementById('pay-name').value.trim()) {
@@ -2188,7 +2320,9 @@ function payDueInvoice() {
     if (!card) return;
     brand = card.brand;
     last4 = card.last4;
-    state.billing.paymentMethod = { brand, last4 };
+    name = card.name;
+    expiry = card.expiry;
+    state.billing.paymentMethod = { brand, last4, name, expiry };
   }
 
   if (!brand || !last4) {
@@ -2221,7 +2355,7 @@ function renderPlanTiers() {
         <h3 class="plan-tier__name">${iconSvg(plan.id)}<span>${escapeHtml(plan.name)}</span></h3>
         <p class="plan-tier__price">$${plan.price}<span>/mo</span></p>
       </div>
-      <p class="plan-tier__seats">${plan.seats} seat${plan.seats === 1 ? '' : 's'}</p>
+      <p class="plan-tier__seats">${plan.seats} seat${plan.seats === 1 ? '' : 's'} · Billed monthly</p>
       <ul class="plan-tier__features">
         ${plan.features.map(f => `<li>${escapeHtml(f)}</li>`).join('')}
       </ul>
@@ -2240,6 +2374,10 @@ function openChangePlan() {
   if (!canManageBilling()) return;
   document.getElementById('plan-switch-error').hidden = true;
   document.getElementById('simulate-decline').checked = false;
+  const title = document.getElementById('change-plan-title');
+  if (title) {
+    title.textContent = isFreePlan() ? 'Choose a subscription' : 'Switch your subscription';
+  }
   renderPlanTiers();
   openOverlay('change-plan-overlay');
 }
@@ -2250,9 +2388,10 @@ function requestPlanSwitch(planId) {
   if (target.id === state.billing.planId && !isFreePlan()) return;
 
   document.getElementById('plan-switch-error').hidden = true;
-  const used = seatsUsed();
+  const used = seatsNeededForPlan(target.id);
 
   if (used > target.seats) {
+    blockedPlanId = planId;
     document.getElementById('plan-block-body').textContent =
       `You have ${used} members but ${target.name} only includes ${target.seats} seat${target.seats === 1 ? '' : 's'}. Remove members before switching, or choose a different plan.`;
     openOverlay('plan-block-overlay');
@@ -2286,6 +2425,10 @@ function completePlanSwitch() {
     err.textContent = 'Add a payment method before switching to a paid plan.';
     err.hidden = false;
     pendingPlanId = null;
+    if (restoreMembersAfterSoloTest()) {
+      renderMembers();
+      renderBilling();
+    }
     return;
   }
 
@@ -2295,6 +2438,10 @@ function completePlanSwitch() {
   if (simulateDecline || randomDecline) {
     closeOverlay('plan-confirm-overlay');
     pendingPlanId = null;
+    if (restoreMembersAfterSoloTest()) {
+      renderMembers();
+      renderBilling();
+    }
     const err = document.getElementById('plan-switch-error');
     err.textContent = 'Your card was declined. Update your payment method to continue.';
     err.hidden = false;
@@ -2305,6 +2452,9 @@ function completePlanSwitch() {
   state.billing.status = 'active';
   if (!state.billing.nextBillingDate || state.billing.nextBillingDate === '—') {
     state.billing.nextBillingDate = 'October 12, 2026';
+  }
+  if (target.id !== 'solo') {
+    restoreMembersAfterSoloTest();
   }
   closeOverlay('plan-confirm-overlay');
   closeOverlay('change-plan-overlay');
@@ -2391,12 +2541,36 @@ document.getElementById('plan-tiers').addEventListener('click', (e) => {
 document.getElementById('plan-confirm-cancel').addEventListener('click', () => {
   closeOverlay('plan-confirm-overlay');
   pendingPlanId = null;
+  if (restoreMembersAfterSoloTest()) {
+    renderMembers();
+    renderBilling();
+  }
 });
 
 document.getElementById('plan-confirm-ok').addEventListener('click', completePlanSwitch);
 
 document.getElementById('plan-block-ok').addEventListener('click', () => {
+  blockedPlanId = null;
   closeOverlay('plan-block-overlay');
+});
+
+document.getElementById('plan-block-test').addEventListener('click', () => {
+  const owner = state.members.find(m => m.role === 'owner');
+  const planId = blockedPlanId;
+  if (!owner) return;
+
+  if (!membersBeforeSoloTest) {
+    membersBeforeSoloTest = cloneMembers(state.members);
+  }
+  state.members = [owner];
+  justJoinedMemberId = null;
+  blockedPlanId = null;
+  renderMembers();
+  renderBilling();
+  closeOverlay('plan-block-overlay');
+  showToast('Demo: kept owner only so you can test this plan');
+
+  if (planId) requestPlanSwitch(planId);
 });
 
 document.getElementById('manage-payment-btn').addEventListener('click', () => {
@@ -2420,14 +2594,17 @@ document.getElementById('payment-pay').addEventListener('click', payDueInvoice);
 document.getElementById('pay-number').addEventListener('input', (e) => {
   e.target.value = formatCardNumber(e.target.value);
   document.getElementById('payment-error').hidden = true;
+  syncPayFace();
 });
 document.getElementById('pay-expiry').addEventListener('input', (e) => {
   e.target.value = formatExpiry(e.target.value);
   document.getElementById('payment-error').hidden = true;
+  syncPayFace();
 });
 ['pay-name', 'pay-cvc'].forEach(id => {
   document.getElementById(id).addEventListener('input', () => {
     document.getElementById('payment-error').hidden = true;
+    if (id === 'pay-name') syncPayFace();
   });
 });
 
@@ -2734,7 +2911,14 @@ document.querySelectorAll('.overlay').forEach(ov => {
     pendingPermissionsId = null;
     pendingInfoId = null;
     pendingTransferId = null;
-    if (ov.id === 'plan-confirm-overlay') pendingPlanId = null;
+    if (ov.id === 'plan-confirm-overlay') {
+      pendingPlanId = null;
+      if (restoreMembersAfterSoloTest()) {
+        renderMembers();
+        renderBilling();
+      }
+    }
+    if (ov.id === 'plan-block-overlay') blockedPlanId = null;
   });
 });
 
@@ -2797,6 +2981,11 @@ function toggleSidebar() {
 
 document.getElementById('sidebar-toggle')?.addEventListener('click', toggleSidebar);
 document.getElementById('sidebar-backdrop')?.addEventListener('click', closeSidebar);
+document.getElementById('nav-settings-btn')?.addEventListener('click', () => {
+  switchTab('general');
+  if (isMobileNav()) closeSidebar();
+  document.querySelector('.content')?.scrollTo?.({ top: 0, behavior: 'smooth' });
+});
 window.addEventListener('resize', () => {
   if (!isMobileNav()) closeSidebar();
 });
