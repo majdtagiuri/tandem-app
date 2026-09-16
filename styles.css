@@ -1321,14 +1321,17 @@ h2 {
   background: var(--surface);
   box-shadow: none;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   box-sizing: border-box;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  /* Hide native scrollbar — custom track + thumb on the right */
+  /* Hide native scrollbar — custom track + thumb on the right when needed */
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+.members-list.members-list--scrollable {
+  overflow-y: auto;
 }
 .members-list::-webkit-scrollbar {
   width: 0 !important;

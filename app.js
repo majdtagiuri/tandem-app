@@ -1116,17 +1116,35 @@ function syncMembersScrollbar() {
   const shell = document.getElementById('members-list-shell');
   const rail = document.getElementById('members-scrollbar');
   const thumb = document.getElementById('members-scrollbar-thumb');
-  if (!list || !rail || !thumb) return;
+  if (!list || !rail || !thumb || !shell) return;
 
-  const { scrollTop, scrollHeight, clientHeight } = list;
-  const overflow = scrollHeight > clientHeight + 1;
-  const trackJustOpened = overflow && rail.hidden;
+  // Measure fit at full width (no track) so a track isn't forced when everyone fits
+  rail.hidden = true;
+  shell.classList.remove('is-scrollable');
+  list.classList.remove('members-list--scrollable');
+  void list.offsetHeight;
+
+  const contentHeight = Math.max(
+    list.scrollHeight,
+    [...list.children].reduce((sum, el) => sum + el.offsetHeight, 0)
+  );
+  const availableHeight = list.clientHeight;
+  const overflow = contentHeight > availableHeight + 2;
+
   rail.hidden = !overflow;
   rail.setAttribute('aria-hidden', overflow ? 'false' : 'true');
-  shell?.classList.toggle('is-scrollable', overflow);
-  if (!overflow) return;
+  shell.classList.toggle('is-scrollable', overflow);
+  list.classList.toggle('members-list--scrollable', overflow);
+
+  if (!overflow) {
+    list.scrollTop = 0;
+    thumb.style.height = '';
+    thumb.style.transform = '';
+    return;
+  }
 
   const updateThumb = () => {
+    const { scrollTop, scrollHeight, clientHeight } = list;
     const trackH = rail.clientHeight || 1;
     const thumbH = Math.max(28, Math.round((clientHeight / scrollHeight) * trackH));
     const maxTop = Math.max(0, trackH - thumbH);
@@ -1136,8 +1154,7 @@ function syncMembersScrollbar() {
     thumb.style.transform = `translateY(${top}px)`;
   };
 
-  if (trackJustOpened) requestAnimationFrame(updateThumb);
-  else updateThumb();
+  requestAnimationFrame(updateThumb);
 }
 
 function bindMembersScrollbar() {
