@@ -1113,6 +1113,15 @@ function renderMembers(options = {}) {
 
 let membersScrollbarSyncing = false;
 
+function getMembersContentHeight(list) {
+  const children = [...list.children];
+  if (!children.length) return 0;
+  // Prefer first→last box edges (includes borders between rows accurately)
+  const top = children[0].offsetTop;
+  const last = children[children.length - 1];
+  return last.offsetTop + last.offsetHeight - top;
+}
+
 function syncMembersScrollbar() {
   const list = document.getElementById('members-list');
   const shell = document.getElementById('members-list-shell');
@@ -1120,20 +1129,29 @@ function syncMembersScrollbar() {
   const thumb = document.getElementById('members-scrollbar-thumb');
   if (!list || !rail || !thumb || !shell || membersScrollbarSyncing) return;
 
+  // Skip while the members tab is hidden — clientHeight is 0 and would false-positive
+  const membersTab = document.getElementById('tab-members');
+  if (membersTab?.hidden || shell.clientHeight < 32) {
+    rail.hidden = true;
+    shell.classList.remove('is-scrollable');
+    list.classList.remove('members-list--scrollable');
+    list.scrollTop = 0;
+    return;
+  }
+
   membersScrollbarSyncing = true;
 
-  // Measure fit at full width (no track) so a track isn't forced when everyone fits
+  // Measure at full width with scrolling disabled
   rail.hidden = true;
   shell.classList.remove('is-scrollable');
   list.classList.remove('members-list--scrollable');
+  list.scrollTop = 0;
   void list.offsetHeight;
 
-  const contentHeight = Math.max(
-    list.scrollHeight,
-    [...list.children].reduce((sum, el) => sum + el.offsetHeight, 0)
-  );
+  // Do NOT use list.scrollHeight — a flex-stretched list reports viewport height, not content
+  const contentHeight = getMembersContentHeight(list);
   const availableHeight = list.clientHeight;
-  const overflow = contentHeight > availableHeight + 2;
+  const overflow = contentHeight > availableHeight + 1;
 
   rail.hidden = !overflow;
   rail.setAttribute('aria-hidden', overflow ? 'false' : 'true');
@@ -1160,16 +1178,17 @@ function updateMembersScrollbarThumb() {
   const thumb = document.getElementById('members-scrollbar-thumb');
   if (!list || !rail || !thumb || rail.hidden) return;
 
-  const { scrollTop, scrollHeight, clientHeight } = list;
-  if (scrollHeight <= clientHeight + 2) {
+  const contentHeight = getMembersContentHeight(list);
+  const { scrollTop, clientHeight } = list;
+  if (contentHeight <= clientHeight + 1) {
     syncMembersScrollbar();
     return;
   }
 
   const trackH = rail.clientHeight || 1;
-  const thumbH = Math.max(28, Math.round((clientHeight / scrollHeight) * trackH));
+  const thumbH = Math.max(28, Math.round((clientHeight / contentHeight) * trackH));
   const maxTop = Math.max(0, trackH - thumbH);
-  const maxScroll = Math.max(1, scrollHeight - clientHeight);
+  const maxScroll = Math.max(1, contentHeight - clientHeight);
   const top = maxTop === 0 ? 0 : (scrollTop / maxScroll) * maxTop;
   thumb.style.height = `${thumbH}px`;
   thumb.style.transform = `translateY(${top}px)`;
@@ -1186,10 +1205,19 @@ function bindMembersScrollbar() {
   rail.dataset.bound = '1';
 
   list.addEventListener('scroll', updateMembersScrollbarThumb, { passive: true });
+  list.addEventListener('wheel', (e) => {
+    if (!list.classList.contains('members-list--scrollable')) {
+      e.preventDefault();
+    }
+  }, { passive: false });
   window.addEventListener('resize', syncMembersScrollbar);
 
   if (typeof ResizeObserver !== 'undefined') {
-    const ro = new ResizeObserver(() => syncMembersScrollbar());
+    let roTimer = 0;
+    const ro = new ResizeObserver(() => {
+      window.clearTimeout(roTimer);
+      roTimer = window.setTimeout(() => syncMembersScrollbar(), 32);
+    });
     ro.observe(list);
     const shell = document.getElementById('members-list-shell');
     if (shell) ro.observe(shell);
@@ -1210,11 +1238,12 @@ function bindMembersScrollbar() {
 
   thumb.addEventListener('pointermove', (e) => {
     if (!dragging) return;
-    const { scrollHeight, clientHeight } = list;
+    const contentHeight = getMembersContentHeight(list);
+    const clientHeight = list.clientHeight;
     const trackH = rail.clientHeight;
     const thumbH = thumb.offsetHeight;
     const maxTop = trackH - thumbH;
-    const maxScroll = scrollHeight - clientHeight;
+    const maxScroll = contentHeight - clientHeight;
     if (maxTop <= 0 || maxScroll <= 0) return;
     const delta = e.clientY - startY;
     list.scrollTop = startScroll + (delta / maxTop) * maxScroll;
@@ -1226,12 +1255,13 @@ function bindMembersScrollbar() {
 
   rail.addEventListener('pointerdown', (e) => {
     if (e.target === thumb || thumb.contains(e.target)) return;
+    const contentHeight = getMembersContentHeight(list);
     const rect = rail.getBoundingClientRect();
     const thumbH = thumb.offsetHeight;
     const y = e.clientY - rect.top - thumbH / 2;
     const maxTop = Math.max(0, rail.clientHeight - thumbH);
     const ratio = maxTop === 0 ? 0 : Math.min(1, Math.max(0, y / maxTop));
-    list.scrollTop = ratio * Math.max(0, list.scrollHeight - list.clientHeight);
+    list.scrollTop = ratio * Math.max(0, contentHeight - list.clientHeight);
   });
 
   syncMembersScrollbar();
@@ -1891,7 +1921,12 @@ function switchTab(key) {
     void next.offsetWidth;
     next.classList.add('panel--enter');
     if (key === 'billing') renderBilling();
-    if (key === 'members') requestAnimationFrame(() => syncMembersScrollbar());
+    if (key === 'members') {
+      requestAnimationFrame(() => {
+        syncMembersScrollbar();
+        window.setTimeout(() => syncMembersScrollbar(), 320);
+      });
+    }
   };
 
   if (current && !current.hidden) {
