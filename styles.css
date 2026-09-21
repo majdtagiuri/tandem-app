@@ -1094,18 +1094,50 @@ h2 {
   overscroll-behavior: contain;
 }
 /* Keep settings content readable; scrollbar stays on the full-width panel edge */
-.panel > * {
+.panel > *:not(.panel__scroll-body):not(.custom-scroll-rail),
+.panel__scroll-inner > * {
   max-width: var(--settings-col);
   width: 100%;
   box-sizing: border-box;
 }
 /* Don't compress panel sections on short screens — scroll instead */
-.panel > *:not(.members-list):not(.members-list-shell) {
+.panel > *:not(.members-list):not(.members-list-shell):not(.panel__scroll-body):not(.custom-scroll-rail),
+.panel__scroll-inner > *:not(.members-list):not(.members-list-shell) {
   flex-shrink: 0;
+}
+
+/* General / Billing: custom scrollbar on the panel edge */
+.panel.panel--custom-scroll.custom-scroll-shell {
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 0;
+}
+.panel--custom-scroll .panel__scroll-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+.panel--custom-scroll .panel__scroll-inner {
+  padding: clamp(28px, 3.8vh, 48px) var(--settings-gutter) var(--settings-panel-bottom, 16px) 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.panel--custom-scroll .custom-scroll-rail {
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: stretch;
 }
 
 /* General: natural flow under Save changes */
 #tab-general.panel {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+#tab-general.panel:not(.panel--custom-scroll) {
   overflow-x: hidden;
   overflow-y: auto;
   padding-bottom: var(--settings-panel-bottom);
@@ -1125,6 +1157,10 @@ h2 {
 
 /* Billing: denser chrome below the header; same tab→content gap as other panels */
 #tab-billing.panel {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+#tab-billing.panel:not(.panel--custom-scroll) {
   padding-bottom: var(--settings-panel-bottom);
 }
 #tab-billing .panel-header {
@@ -1291,57 +1327,43 @@ h2 {
 .btn--text-danger { color: var(--terracotta-text); box-shadow: none; }
 .btn--text-danger:hover { background: var(--terracotta-fill); }
 
-/* Members list shell — custom square scrollbar with right track when needed */
+/* Shared custom scrollbar (members table + scrollable modals) */
+.custom-scroll-shell,
 .members-list-shell {
   position: relative;
-  max-width: var(--settings-col);
-  width: 100%;
-  align-self: stretch;
-  flex: 1 1 auto;
-  min-height: 0;
-  /* Flexbox: allow shell to take remaining height without forcing content overflow */
-  height: 0;
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  border: 2px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--elevation-container);
   overflow: hidden;
   box-sizing: border-box;
+  min-height: 0;
 }
+.custom-scroll-body,
 .members-list {
-  max-width: none;
-  width: auto;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  height: 100%;
-  align-self: stretch;
-  border: none;
-  border-radius: 0;
-  background: var(--surface);
-  box-shadow: none;
   overflow-x: hidden;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
   box-sizing: border-box;
-  transition: opacity 0.2s ease, transform 0.2s ease;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.custom-scroll-body.custom-scroll-body--scrollable,
 .members-list.members-list--scrollable {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+.custom-scroll-body::-webkit-scrollbar,
 .members-list::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
   display: none !important;
   background: transparent !important;
 }
+.custom-scroll-rail,
 .members-scrollbar {
   position: relative;
   flex: 0 0 10px;
@@ -1354,9 +1376,11 @@ h2 {
   pointer-events: auto;
   box-sizing: border-box;
 }
+.custom-scroll-rail[hidden],
 .members-scrollbar[hidden] {
   display: none !important;
 }
+.custom-scroll-thumb,
 .members-scrollbar__thumb {
   position: absolute;
   top: 0;
@@ -1368,17 +1392,111 @@ h2 {
   cursor: grab;
   touch-action: none;
 }
+.custom-scroll-thumb:hover,
 .members-scrollbar__thumb:hover {
   background: color-mix(in srgb, var(--ink) 55%, var(--paper));
 }
+.custom-scroll-thumb:active,
 .members-scrollbar__thumb:active {
   cursor: grabbing;
   background: color-mix(in srgb, var(--ink) 62%, var(--paper));
+}
+
+/* Members list shell — bordered container filling the panel */
+.members-list-shell {
+  max-width: var(--settings-col);
+  width: 100%;
+  align-self: stretch;
+  flex: 1 1 auto;
+  height: 0;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--elevation-container);
+}
+.members-list {
+  max-width: none;
+  width: auto;
+  height: 100%;
+  align-self: stretch;
+  border: none;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .members-list--fading {
   opacity: 0;
   transform: translateY(4px);
   pointer-events: none;
+}
+
+/* Billing history modal — scrolls on the popup; receipt is normal content */
+.modal--history .receipt-sheet {
+  margin: 12px 0 8px;
+}
+
+/* Billing history — receipt sheet with ripped bottom */
+.receipt-sheet {
+  margin: 12px 0 18px;
+  width: 100%;
+}
+.receipt-sheet__body {
+  padding: 16px 16px 8px;
+  border: 2px solid var(--ink);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--paper);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+.receipt-sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(23, 20, 18, 0.28);
+}
+.receipt-sheet__number {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.receipt-sheet__count {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--chartreuse-fill);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.receipt-sheet__tear {
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin-top: -1px;
+  overflow: visible;
+  color: var(--ink);
+  pointer-events: none;
+}
+.receipt-sheet__tear-fill {
+  fill: var(--paper);
+}
+.receipt-sheet__tear-edge {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: square;
+  vector-effect: non-scaling-stroke;
 }
 
 .members-header,
@@ -2420,7 +2538,7 @@ body.is-reordering * {
 }
 
 /* Plan card — same column width as members list / tab rule */
-#tab-billing > .plan-card,
+#tab-billing .plan-card,
 .plan-card {
   max-width: var(--settings-col);
   width: 100%;
@@ -2734,7 +2852,7 @@ body.is-reordering * {
   border-radius: var(--radius);
   background: var(--paper);
   padding: 16px;
-  box-shadow: var(--elevation-container);
+  box-shadow: none;
 }
 .payment-sheet__top {
   display: flex;
@@ -2870,9 +2988,9 @@ body.is-reordering * {
 .payment-sheet__line {
   margin: 14px 0;
   border-top: 1px solid rgba(23, 20, 18, 0.14);
-  border-bottom: 1px solid rgba(23, 20, 18, 0.14);
+  border-bottom: none;
   height: 0;
-  padding: 5px 0 0;
+  padding: 0;
 }
 .payment-form__heading {
   margin: 0 0 2px;
@@ -3065,67 +3183,6 @@ body.is-reordering * {
 .invoice-history-list__actions .btn {
   padding: 6px 10px;
   font-size: 12px;
-}
-
-/* Billing history — receipt sheet with ripped bottom */
-.receipt-sheet {
-  margin: 12px 0 18px;
-}
-.receipt-sheet__body {
-  padding: 16px 16px 8px;
-  border: 2px solid var(--ink);
-  border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
-  background: var(--paper);
-  box-shadow: var(--elevation-container);
-}
-.receipt-sheet__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px dashed rgba(23, 20, 18, 0.28);
-}
-.receipt-sheet__number {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--ink);
-}
-.receipt-sheet__count {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 2px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--chartreuse-fill);
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.receipt-sheet__tear {
-  display: block;
-  width: 100%;
-  height: 36px;
-  margin-top: -1px; /* overlap so fill/stroke meet the body borders */
-  overflow: visible;
-  color: var(--ink);
-  pointer-events: none;
-}
-.receipt-sheet__tear-fill {
-  fill: var(--paper);
-}
-.receipt-sheet__tear-edge {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2px;
-  stroke-linejoin: round;
-  stroke-linecap: square;
-  vector-effect: non-scaling-stroke;
 }
 
 .field-row {
@@ -3336,6 +3393,10 @@ body.is-reordering * {
   color: var(--ink);
 }
 
+#delete-workspace-overlay .field-label[for="delete-workspace-slug"] {
+  margin-bottom: 12px;
+}
+
 #delete-workspace-slug {
   width: 100%;
   font-family: inherit;
@@ -3485,9 +3546,28 @@ body.is-reordering * {
   box-sizing: border-box;
   box-shadow: var(--elevation-container);
 }
+.plan-tier--solo {
+  background: color-mix(in srgb, var(--teal-soft) 22%, var(--surface));
+}
+.plan-tier--studio {
+  background: color-mix(in srgb, var(--blush-soft) 55%, var(--surface));
+}
+.plan-tier--agency {
+  background: color-mix(in srgb, var(--chartreuse-bold) 38%, var(--surface));
+}
 .plan-tier--current {
-  background: color-mix(in srgb, var(--chartreuse-bold) 55%, var(--surface));
   box-shadow: var(--elevation-container);
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+.plan-tier--current.plan-tier--solo {
+  background: color-mix(in srgb, var(--teal-soft) 34%, var(--surface));
+}
+.plan-tier--current.plan-tier--studio {
+  background: color-mix(in srgb, var(--blush-bold) 42%, var(--surface));
+}
+.plan-tier--current.plan-tier--agency {
+  background: color-mix(in srgb, var(--chartreuse-bold) 55%, var(--surface));
 }
 .plan-tier__head {
   display: flex;
@@ -3685,8 +3765,45 @@ body.is-reordering * {
 }
 
 .modal--invoice { max-width: 480px; }
-.modal--scroll {
-  overflow: auto;
+.modal--scroll.custom-scroll-shell {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 0;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+}
+.modal--scroll .modal__scroll-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  max-height: inherit;
+}
+.modal--scroll .modal__scroll-inner {
+  position: relative;
+  padding: 28px 28px 24px;
+  box-sizing: border-box;
+}
+.modal--plans.custom-scroll-shell .modal__scroll-inner {
+  padding: 32px 32px 28px;
+}
+.modal--invite.custom-scroll-shell .modal__scroll-inner {
+  padding-bottom: 32px;
+}
+.modal--scroll .modal__scroll-inner > .modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+.modal--scroll.is-scrollable .modal__scroll-inner > .modal__close {
+  right: 12px;
+}
+.modal--scroll .custom-scroll-rail {
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: stretch;
 }
 .modal h2 {
   margin: 0 0 8px;
@@ -3701,6 +3818,7 @@ body.is-reordering * {
   position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 8;
   width: 32px;
   height: 32px;
   padding: 0;
@@ -3709,10 +3827,13 @@ body.is-reordering * {
   justify-content: center;
   border: 2px solid transparent;
   border-radius: var(--radius);
-  background: transparent;
+  background: var(--surface);
   color: var(--ink);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+.modal--scroll.is-scrollable .modal__close {
+  right: 22px;
 }
 .modal__close .icon {
   width: 16px;
@@ -4141,9 +4262,20 @@ body.is-reordering * {
   .modal--wide,
   .modal--plans {
     max-width: 100%;
+  }
+  .modal--wide:not(.modal--scroll),
+  .modal--plans:not(.modal--scroll) {
     padding: 22px 16px 18px;
   }
-  .modal--scroll {
+  .modal--wide.modal--scroll .modal__scroll-inner,
+  .modal--plans.modal--scroll .modal__scroll-inner {
+    padding: 22px 16px 18px;
+  }
+  .modal--scroll.custom-scroll-shell {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .modal--scroll .modal__scroll-body {
     -webkit-overflow-scrolling: touch;
   }
 

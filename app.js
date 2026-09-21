@@ -448,6 +448,10 @@ function applyViewAs() {
 
   renderMembers();
   renderBilling();
+  requestAnimationFrame(() => {
+    syncAllPanelScrollbars();
+    syncMembersScrollbar();
+  });
 }
 
 document.querySelectorAll('[data-view-as]').forEach(btn => {
@@ -1111,77 +1115,75 @@ function renderMembers(options = {}) {
   }
 }
 
-let membersScrollbarSyncing = false;
+let customScrollbarSyncLocks = new WeakSet();
 
-function getMembersContentHeight(list) {
-  const children = [...list.children];
+function getScrollContentHeight(el) {
+  const children = [...el.children];
   if (!children.length) return 0;
-  // Prefer first→last box edges (includes borders between rows accurately)
   const top = children[0].offsetTop;
   const last = children[children.length - 1];
   return last.offsetTop + last.offsetHeight - top;
 }
 
-function syncMembersScrollbar() {
-  const list = document.getElementById('members-list');
-  const shell = document.getElementById('members-list-shell');
-  const rail = document.getElementById('members-scrollbar');
-  const thumb = document.getElementById('members-scrollbar-thumb');
-  if (!list || !rail || !thumb || !shell || membersScrollbarSyncing) return;
+function syncCustomScrollbar(cfg) {
+  const {
+    shell,
+    body,
+    rail,
+    thumb,
+    scrollableClass,
+    isActive = () => true
+  } = cfg;
+  if (!shell || !body || !rail || !thumb) return;
+  if (customScrollbarSyncLocks.has(shell)) return;
 
-  // Skip while the members tab is hidden — clientHeight is 0 and would false-positive
-  const membersTab = document.getElementById('tab-members');
-  if (membersTab?.hidden || shell.clientHeight < 32) {
+  if (!isActive() || shell.clientHeight < 32) {
     rail.hidden = true;
     shell.classList.remove('is-scrollable');
-    list.classList.remove('members-list--scrollable');
-    list.scrollTop = 0;
+    body.classList.remove(scrollableClass);
+    body.scrollTop = 0;
     return;
   }
 
-  membersScrollbarSyncing = true;
+  customScrollbarSyncLocks.add(shell);
 
-  // Measure at full width with scrolling disabled
   rail.hidden = true;
   shell.classList.remove('is-scrollable');
-  list.classList.remove('members-list--scrollable');
-  list.scrollTop = 0;
-  void list.offsetHeight;
+  body.classList.remove(scrollableClass);
+  body.scrollTop = 0;
+  void body.offsetHeight;
 
-  // Do NOT use list.scrollHeight — a flex-stretched list reports viewport height, not content
-  const contentHeight = getMembersContentHeight(list);
-  const availableHeight = list.clientHeight;
+  const contentHeight = getScrollContentHeight(body);
+  const availableHeight = body.clientHeight;
   const overflow = contentHeight > availableHeight + 1;
 
   rail.hidden = !overflow;
   rail.setAttribute('aria-hidden', overflow ? 'false' : 'true');
   shell.classList.toggle('is-scrollable', overflow);
-  list.classList.toggle('members-list--scrollable', overflow);
+  body.classList.toggle(scrollableClass, overflow);
 
   if (!overflow) {
-    list.scrollTop = 0;
+    body.scrollTop = 0;
     thumb.style.height = '';
     thumb.style.transform = '';
-    requestAnimationFrame(() => { membersScrollbarSyncing = false; });
+    requestAnimationFrame(() => customScrollbarSyncLocks.delete(shell));
     return;
   }
 
   requestAnimationFrame(() => {
-    updateMembersScrollbarThumb();
-    membersScrollbarSyncing = false;
+    updateCustomScrollbarThumb(cfg);
+    customScrollbarSyncLocks.delete(shell);
   });
 }
 
-function updateMembersScrollbarThumb() {
-  const list = document.getElementById('members-list');
-  const rail = document.getElementById('members-scrollbar');
-  const thumb = document.getElementById('members-scrollbar-thumb');
-  if (!list || !rail || !thumb || rail.hidden) return;
+function updateCustomScrollbarThumb(cfg) {
+  const { body, rail, thumb, scrollableClass } = cfg;
+  if (!body || !rail || !thumb || rail.hidden) return;
 
-  const contentHeight = getMembersContentHeight(list);
-  const { scrollTop, clientHeight } = list;
+  const contentHeight = getScrollContentHeight(body);
+  const { scrollTop, clientHeight } = body;
   if (contentHeight <= clientHeight + 1) {
-    syncMembersScrollbar();
+    syncCustomScrollbar(cfg);
     return;
   }
 
@@ -1192,35 +1194,32 @@ function updateMembersScrollbarThumb() {
   const top = maxTop === 0 ? 0 : (scrollTop / maxScroll) * maxTop;
   thumb.style.height = `${thumbH}px`;
   thumb.style.transform = `translateY(${top}px)`;
+  body.classList.add(scrollableClass);
 }
 
-function bindMembersScrollbar() {
-  const list = document.getElementById('members-list');
-  const rail = document.getElementById('members-scrollbar');
-  const thumb = document.getElementById('members-scrollbar-thumb');
-  if (!list || !rail || !thumb || rail.dataset.bound === '1') {
-    syncMembersScrollbar();
+function bindCustomScrollbar(cfg) {
+  const { body, rail, thumb, shell, scrollableClass } = cfg;
+  if (!body || !rail || !thumb || !shell) return;
+  if (rail.dataset.bound === '1') {
+    syncCustomScrollbar(cfg);
     return;
   }
   rail.dataset.bound = '1';
 
-  list.addEventListener('scroll', updateMembersScrollbarThumb, { passive: true });
-  list.addEventListener('wheel', (e) => {
-    if (!list.classList.contains('members-list--scrollable')) {
-      e.preventDefault();
-    }
+  body.addEventListener('scroll', () => updateCustomScrollbarThumb(cfg), { passive: true });
+  body.addEventListener('wheel', (e) => {
+    if (!body.classList.contains(scrollableClass)) e.preventDefault();
   }, { passive: false });
-  window.addEventListener('resize', syncMembersScrollbar);
+  window.addEventListener('resize', () => syncCustomScrollbar(cfg));
 
   if (typeof ResizeObserver !== 'undefined') {
     let roTimer = 0;
     const ro = new ResizeObserver(() => {
       window.clearTimeout(roTimer);
-      roTimer = window.setTimeout(() => syncMembersScrollbar(), 32);
+      roTimer = window.setTimeout(() => syncCustomScrollbar(cfg), 32);
     });
-    ro.observe(list);
-    const shell = document.getElementById('members-list-shell');
-    if (shell) ro.observe(shell);
+    ro.observe(body);
+    ro.observe(shell);
   }
 
   let dragging = false;
@@ -1230,7 +1229,7 @@ function bindMembersScrollbar() {
   thumb.addEventListener('pointerdown', (e) => {
     dragging = true;
     startY = e.clientY;
-    startScroll = list.scrollTop;
+    startScroll = body.scrollTop;
     thumb.setPointerCapture(e.pointerId);
     e.preventDefault();
     e.stopPropagation();
@@ -1238,15 +1237,15 @@ function bindMembersScrollbar() {
 
   thumb.addEventListener('pointermove', (e) => {
     if (!dragging) return;
-    const contentHeight = getMembersContentHeight(list);
-    const clientHeight = list.clientHeight;
+    const contentHeight = getScrollContentHeight(body);
+    const clientHeight = body.clientHeight;
     const trackH = rail.clientHeight;
     const thumbH = thumb.offsetHeight;
     const maxTop = trackH - thumbH;
     const maxScroll = contentHeight - clientHeight;
     if (maxTop <= 0 || maxScroll <= 0) return;
     const delta = e.clientY - startY;
-    list.scrollTop = startScroll + (delta / maxTop) * maxScroll;
+    body.scrollTop = startScroll + (delta / maxTop) * maxScroll;
   });
 
   const endDrag = () => { dragging = false; };
@@ -1255,16 +1254,186 @@ function bindMembersScrollbar() {
 
   rail.addEventListener('pointerdown', (e) => {
     if (e.target === thumb || thumb.contains(e.target)) return;
-    const contentHeight = getMembersContentHeight(list);
+    const contentHeight = getScrollContentHeight(body);
     const rect = rail.getBoundingClientRect();
     const thumbH = thumb.offsetHeight;
     const y = e.clientY - rect.top - thumbH / 2;
     const maxTop = Math.max(0, rail.clientHeight - thumbH);
     const ratio = maxTop === 0 ? 0 : Math.min(1, Math.max(0, y / maxTop));
-    list.scrollTop = ratio * Math.max(0, contentHeight - list.clientHeight);
+    body.scrollTop = ratio * Math.max(0, contentHeight - body.clientHeight);
   });
 
-  syncMembersScrollbar();
+  syncCustomScrollbar(cfg);
+}
+
+function membersScrollbarConfig() {
+  return {
+    shell: document.getElementById('members-list-shell'),
+    body: document.getElementById('members-list'),
+    rail: document.getElementById('members-scrollbar'),
+    thumb: document.getElementById('members-scrollbar-thumb'),
+    scrollableClass: 'members-list--scrollable',
+    isActive: () => !document.getElementById('tab-members')?.hidden
+  };
+}
+
+function syncMembersScrollbar() {
+  syncCustomScrollbar(membersScrollbarConfig());
+}
+
+function bindMembersScrollbar() {
+  bindCustomScrollbar(membersScrollbarConfig());
+}
+
+function enhanceModalScroll(modal) {
+  if (!modal || modal.dataset.customScrollReady === '1') return;
+
+  const body = document.createElement('div');
+  body.className = 'modal__scroll-body custom-scroll-body';
+  const inner = document.createElement('div');
+  inner.className = 'modal__scroll-inner';
+  while (modal.firstChild) inner.appendChild(modal.firstChild);
+  body.appendChild(inner);
+
+  const rail = document.createElement('div');
+  rail.className = 'custom-scroll-rail';
+  rail.setAttribute('aria-hidden', 'true');
+  rail.hidden = true;
+  const thumb = document.createElement('div');
+  thumb.className = 'custom-scroll-thumb';
+  rail.appendChild(thumb);
+
+  modal.classList.add('custom-scroll-shell');
+  modal.append(body, rail);
+  modal.dataset.customScrollReady = '1';
+
+  const cfg = {
+    shell: modal,
+    body,
+    rail,
+    thumb,
+    scrollableClass: 'custom-scroll-body--scrollable',
+    isActive: () => !modal.closest('.overlay')?.hidden
+  };
+  bindCustomScrollbar(cfg);
+
+  if (typeof ResizeObserver !== 'undefined') {
+    let innerTimer = 0;
+    const innerRo = new ResizeObserver(() => {
+      window.clearTimeout(innerTimer);
+      innerTimer = window.setTimeout(() => syncCustomScrollbar(cfg), 32);
+    });
+    innerRo.observe(inner);
+  }
+}
+
+function modalScrollbarConfig(modal) {
+  const body = modal.querySelector(':scope > .modal__scroll-body');
+  const rail = modal.querySelector(':scope > .custom-scroll-rail');
+  const thumb = rail?.querySelector('.custom-scroll-thumb');
+  return {
+    shell: modal,
+    body,
+    rail,
+    thumb,
+    scrollableClass: 'custom-scroll-body--scrollable',
+    isActive: () => !modal.closest('.overlay')?.hidden
+  };
+}
+
+function bindAllModalScrollbars() {
+  document.querySelectorAll('.modal.modal--scroll').forEach(enhanceModalScroll);
+  document.querySelectorAll('.modal .modal__close').forEach((btn) => {
+    const modal = btn.closest('.modal');
+    if (!modal) return;
+    const inner = modal.querySelector(':scope > .modal__scroll-body > .modal__scroll-inner');
+    if (inner && !inner.contains(btn)) inner.prepend(btn);
+    else if (!inner && btn.parentElement !== modal) modal.prepend(btn);
+  });
+}
+
+function syncAllModalScrollbars() {
+  document.querySelectorAll('.modal.modal--scroll.custom-scroll-shell').forEach((modal) => {
+    syncCustomScrollbar(modalScrollbarConfig(modal));
+  });
+}
+
+function syncModalScrollbar(modal) {
+  if (!modal?.classList.contains('custom-scroll-shell')) return;
+  syncCustomScrollbar(modalScrollbarConfig(modal));
+}
+
+function enhancePanelScroll(panel) {
+  if (!panel || panel.dataset.customScrollReady === '1') return;
+  /* Members keeps its own list-edge scrollbar */
+  if (panel.id === 'tab-members' || panel.querySelector(':scope > .members-list-shell')) return;
+
+  const body = document.createElement('div');
+  body.className = 'panel__scroll-body custom-scroll-body';
+  const inner = document.createElement('div');
+  inner.className = 'panel__scroll-inner';
+  while (panel.firstChild) inner.appendChild(panel.firstChild);
+  body.appendChild(inner);
+
+  const rail = document.createElement('div');
+  rail.className = 'custom-scroll-rail';
+  rail.setAttribute('aria-hidden', 'true');
+  rail.hidden = true;
+  const thumb = document.createElement('div');
+  thumb.className = 'custom-scroll-thumb';
+  rail.appendChild(thumb);
+
+  panel.classList.add('custom-scroll-shell', 'panel--custom-scroll');
+  panel.append(body, rail);
+  panel.dataset.customScrollReady = '1';
+
+  const cfg = {
+    shell: panel,
+    body,
+    rail,
+    thumb,
+    scrollableClass: 'custom-scroll-body--scrollable',
+    isActive: () => !panel.hidden
+  };
+  bindCustomScrollbar(cfg);
+
+  if (typeof ResizeObserver !== 'undefined') {
+    let timer = 0;
+    const ro = new ResizeObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => syncCustomScrollbar(cfg), 32);
+    });
+    ro.observe(inner);
+  }
+}
+
+function panelScrollbarConfig(panel) {
+  const body = panel.querySelector(':scope > .panel__scroll-body');
+  const rail = panel.querySelector(':scope > .custom-scroll-rail');
+  const thumb = rail?.querySelector('.custom-scroll-thumb');
+  return {
+    shell: panel,
+    body,
+    rail,
+    thumb,
+    scrollableClass: 'custom-scroll-body--scrollable',
+    isActive: () => !panel.hidden
+  };
+}
+
+function bindAllPanelScrollbars() {
+  document.querySelectorAll('.panel').forEach(enhancePanelScroll);
+}
+
+function syncAllPanelScrollbars() {
+  document.querySelectorAll('.panel.panel--custom-scroll.custom-scroll-shell').forEach((panel) => {
+    syncCustomScrollbar(panelScrollbarConfig(panel));
+  });
+}
+
+function syncPanelScrollbar(panel) {
+  if (!panel?.classList.contains('panel--custom-scroll')) return;
+  syncCustomScrollbar(panelScrollbarConfig(panel));
 }
 
 function changeRole(id, role) {
@@ -1807,6 +1976,11 @@ function openOverlay(id) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       ov.classList.add('overlay--open');
+      const modal = ov.querySelector('.modal.modal--scroll');
+      if (modal) {
+        syncModalScrollbar(modal);
+        window.setTimeout(() => syncModalScrollbar(modal), 80);
+      }
     });
   });
 }
@@ -1926,6 +2100,11 @@ function switchTab(key) {
         syncMembersScrollbar();
         window.setTimeout(() => syncMembersScrollbar(), 320);
       });
+    } else {
+      requestAnimationFrame(() => {
+        syncPanelScrollbar(next);
+        window.setTimeout(() => syncPanelScrollbar(next), 80);
+      });
     }
   };
 
@@ -1959,6 +2138,7 @@ function renderBilling() {
     detailsBadge.textContent = free ? 'Free' : canceling ? 'Canceling' : 'Active';
     detailsBadge.classList.toggle('plan-badge--canceling', canceling);
     detailsBadge.classList.toggle('plan-badge--free', free);
+    requestAnimationFrame(() => syncPanelScrollbar(document.getElementById('tab-general')));
     return;
   }
 
@@ -2089,6 +2269,7 @@ function renderBilling() {
   }
 
   renderBillingHistoryPreview();
+  requestAnimationFrame(() => syncPanelScrollbar(document.getElementById('tab-billing')));
 }
 
 function formatMoney(amount) {
@@ -2281,13 +2462,54 @@ function getDueInvoice() {
   return state.billing.invoices.find(inv => inv.status === 'Due') || null;
 }
 
+function formatInvoiceDate(date = new Date()) {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatBillingDate(date = new Date()) {
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function addMonths(date, months) {
+  const d = new Date(date.getTime());
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + months);
+  // Clamp month-end overflow (e.g. Jan 31 → Feb)
+  if (d.getDate() < day) d.setDate(0);
+  return d;
+}
+
+/** Next renewal date = one month from when the subscription is made/switched. */
+function nextMonthBillingDate(from = new Date()) {
+  return formatBillingDate(addMonths(from, 1));
+}
+
+function paymentMethodLabel() {
+  const pm = state.billing.paymentMethod;
+  return pm?.brand && pm?.last4 ? `${pm.brand} ···· ${pm.last4}` : 'No card on file';
+}
+
+/** Log a paid charge in billing history (plan switch / resubscribe). */
+function logPlanPayment(plan, { note } = {}) {
+  if (!plan || !plan.price) return;
+  const date = formatInvoiceDate();
+  const paidCount = state.billing.invoices.filter(inv => inv.status === 'Paid').length + 1;
+  state.billing.invoices.unshift({
+    id: `inv-${Date.now()}`,
+    number: `INV-${new Date().getFullYear()}-${String(paidCount).padStart(2, '0')}`,
+    date,
+    period: note || `${plan.name} plan · ${date}`,
+    planName: plan.name,
+    amount: plan.price,
+    tax: 0,
+    status: 'Paid',
+    payment: paymentMethodLabel()
+  });
+}
+
 function ensureEndOfCycleInvoice() {
   if (getDueInvoice()) return;
   const plan = currentPlan();
-  const pm = state.billing.paymentMethod;
-  const paymentLabel = pm?.brand && pm?.last4
-    ? `${pm.brand} ···· ${pm.last4}`
-    : 'No card on file';
   state.billing.invoices.unshift({
     id: `inv-due-${Date.now()}`,
     number: 'INV-DUE',
@@ -2297,7 +2519,7 @@ function ensureEndOfCycleInvoice() {
     amount: plan.price,
     tax: 0,
     status: 'Due',
-    payment: paymentLabel
+    payment: paymentMethodLabel()
   });
 }
 
@@ -2323,7 +2545,7 @@ function openPaymentModal(options = {}) {
 
   if (lead) {
     lead.textContent = hasCard
-      ? 'Update the card on file, remove it, or pay an open invoice.'
+      ? 'Update the saved card, remove it, or pay an open invoice.'
       : 'Add a card to subscribe to a plan and settle invoices.';
   }
   if (removeBtn) removeBtn.hidden = !hasCard;
@@ -2336,7 +2558,7 @@ function openPaymentModal(options = {}) {
       sheetStatus.textContent = 'Due';
       sheetStatus.classList.add('payment-sheet__status--due');
     } else if (hasCard) {
-      sheetStatus.textContent = 'On file';
+      sheetStatus.textContent = 'Saved';
     } else {
       sheetStatus.textContent = 'None';
       sheetStatus.classList.add('payment-sheet__status--empty');
@@ -2517,7 +2739,7 @@ function renderPlanTiers() {
   paidPlans.forEach(plan => {
     const isCurrent = plan.id === state.billing.planId && !isFreePlan();
     const card = document.createElement('div');
-    card.className = 'plan-tier' + (isCurrent ? ' plan-tier--current' : '');
+    card.className = `plan-tier plan-tier--${plan.id}` + (isCurrent ? ' plan-tier--current' : '');
     card.innerHTML = `
       <div class="plan-tier__head">
         <h3 class="plan-tier__name">${iconSvg(plan.id)}<span>${escapeHtml(plan.name)}</span></h3>
@@ -2574,12 +2796,12 @@ function requestPlanSwitch(planId) {
   }
 
   pendingPlanId = planId;
-  const nextBill = state.billing.nextBillingDate && state.billing.nextBillingDate !== '—'
-    ? state.billing.nextBillingDate
-    : 'October 12, 2026';
+  const nextBill = nextMonthBillingDate();
+  const fromFree = isFreePlan();
   document.getElementById('plan-confirm-name').textContent = target.name;
-  document.getElementById('plan-confirm-body').textContent =
-    `You'll move to ${target.name} at $${target.price}/mo with ${target.seats} seats. Your next bill will be on ${nextBill}.`;
+  document.getElementById('plan-confirm-body').textContent = fromFree
+    ? `You'll subscribe to ${target.name} at $${target.price}/mo with ${target.seats} seats. You'll be charged $${target.price} now. Your next bill will be on ${nextBill}.`
+    : `You'll switch to ${target.name} at $${target.price}/mo with ${target.seats} seats. You'll be charged $${target.price} now for this subscription. Your next bill will be on ${nextBill}.`;
   openOverlay('plan-confirm-overlay');
 }
 
@@ -2600,10 +2822,9 @@ function completePlanSwitch() {
     return;
   }
 
-  const simulateDecline = document.getElementById('simulate-decline').checked;
-  const randomDecline = !simulateDecline && Math.random() < 0.2;
-
-  if (simulateDecline || randomDecline) {
+  // Decline only when the simulate-card-decline test checkbox is checked
+  const simulateDecline = document.getElementById('simulate-decline')?.checked;
+  if (simulateDecline) {
     closeOverlay('plan-confirm-overlay');
     pendingPlanId = null;
     if (restoreMembersAfterSoloTest()) {
@@ -2616,20 +2837,29 @@ function completePlanSwitch() {
     return;
   }
 
+  const previousPlanId = state.billing.planId;
+  const wasFree = isFreePlan();
   state.billing.planId = target.id;
   state.billing.status = 'active';
-  if (!state.billing.nextBillingDate || state.billing.nextBillingDate === '—') {
-    state.billing.nextBillingDate = 'October 12, 2026';
-  }
+  state.billing.nextBillingDate = nextMonthBillingDate();
   if (target.id !== 'solo') {
     restoreMembersAfterSoloTest();
   }
+
+  clearDueInvoices();
+  const note = wasFree
+    ? `${target.name} · resubscribed`
+    : previousPlanId === target.id
+      ? `${target.name} · renewed`
+      : `Switched to ${target.name}`;
+  logPlanPayment(target, { note });
+
   closeOverlay('plan-confirm-overlay');
   closeOverlay('change-plan-overlay');
   pendingPlanId = null;
   renderBilling();
   renderMembers();
-  showToast(`Switched to ${target.name} plan`);
+  showToast(wasFree ? `Subscribed to ${target.name}` : `Switched to ${target.name} plan`);
 }
 
 function openCancelPlan() {
@@ -3049,14 +3279,20 @@ document.getElementById('restore-workspace-btn').addEventListener('click', resto
 
 document.querySelectorAll('.overlay').forEach(ov => {
   const modal = ov.querySelector('.modal');
-  if (modal && !modal.querySelector('.modal__close')) {
-    const closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'modal__close';
-    closeBtn.setAttribute('aria-label', 'Close');
-    closeBtn.setAttribute('data-tooltip', 'Close');
-    closeBtn.innerHTML = iconSvg('cancel');
-    modal.prepend(closeBtn);
+  if (modal?.classList.contains('modal--scroll')) enhanceModalScroll(modal);
+  if (modal) {
+    let closeBtn = modal.querySelector('.modal__close');
+    if (!closeBtn) {
+      closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'modal__close';
+      closeBtn.setAttribute('aria-label', 'Close');
+      closeBtn.setAttribute('data-tooltip', 'Close');
+      closeBtn.innerHTML = iconSvg('cancel');
+    }
+    const inner = modal.querySelector(':scope > .modal__scroll-body > .modal__scroll-inner');
+    if (inner) inner.prepend(closeBtn);
+    else modal.prepend(closeBtn);
   }
 
   ov.addEventListener('pointerdown', (e) => {
@@ -3173,6 +3409,16 @@ document.getElementById('invite-role-label').setAttribute('for', '');
 hydrateIcons();
 applyViewAs();
 bindMembersScrollbar();
+bindAllModalScrollbars();
+bindAllPanelScrollbars();
+window.addEventListener('resize', () => {
+  syncMembersScrollbar();
+  syncAllModalScrollbars();
+  syncAllPanelScrollbars();
+});
+requestAnimationFrame(() => {
+  syncAllPanelScrollbars();
+});
 initTooltips();
 
 /* ---------- Tooltips ---------- */
